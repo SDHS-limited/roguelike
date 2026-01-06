@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 7716720133077768678}
   - component: {fileID: 5473811570279584008}
   - component: {fileID: 8383088353573272244}
-  - component: {fileID: 3704159390442075907}
   - component: {fileID: 6299418085311984875}
+  - component: {fileID: 275195455127850078}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30,8 +30,8 @@ Transform:
   m_GameObject: {fileID: 282463490552630140}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 62.123413, y: 1.128, z: 80.05323}
-  m_LocalScale: {x: 1, y: 1.9183, z: 1}
+  m_LocalPosition: {x: 64.9743, y: 0.7912, z: 23.8125}
+  m_LocalScale: {x: 0.46790618, y: 1.34481, z: 0.37169236}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4102676180296196005}
@@ -114,33 +114,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &3704159390442075907
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 282463490552630140}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &6299418085311984875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,6 +127,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   speed: 5
+--- !u!114 &275195455127850078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282463490552630140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9192e16f80cef543a6b13a922430812, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraRot
+  playerBody: {fileID: 181919257015831163}
+  mouseSensitivity: 100
+  smoothTime: 0.02
+  invertY: 0
+  minPitch: -80
+  maxPitch: 80
+  lockCursor: 1
+  isUIOpen: 0
 --- !u!1 &3681096702343649918
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,7 +174,7 @@ Transform:
   m_GameObject: {fileID: 3681096702343649918}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.169, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -197,7 +190,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 1, g: 0.14619882, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

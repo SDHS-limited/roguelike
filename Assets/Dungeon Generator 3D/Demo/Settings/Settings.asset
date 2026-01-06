@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: Settings
   m_EditorClassIdentifier: 
   generation:
-    minRooms: 10
-    maxRooms: 30
+    minRooms: 20
+    maxRooms: 20
     amountOfAdjacentRoomsToConnect: 3
     minRoomWidth: 8
     maxRoomWidth: 12
     minRoomHeight: 8
-    maxRoomHeight: 12
-    minBossRoomWidth: 10
-    maxBossRoomWidth: 12
-    minBossRoomHeight: 10
+    maxRoomHeight: 10
+    minBossRoomWidth: 20
+    maxBossRoomWidth: 20
+    minBossRoomHeight: 12
     maxBossRoomHeight: 12
     areaWidth: 100
     areaHeight: 100
