@@ -64,6 +64,7 @@ public class CameraRot : MonoBehaviour
         // 적용
         transform.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f); // 카메라는 pitch만
         playerBody.eulerAngles = new Vector3(0f, currentRotation.y, 0f);    // 플레이어 바디는 yaw만
+        //Debug.Log($"Mouse Y: {mouseY}, Pitch: {pitch}, Current X: {currentRotation.x}");
 
         if (isUIOpen)
         {
