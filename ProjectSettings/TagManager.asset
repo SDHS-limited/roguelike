@@ -9,6 +9,7 @@ TagManager:
   - OuterCorner
   - Room
   - Bullet
+  - Enemy
   layers:
   - Default
   - TransparentFX
