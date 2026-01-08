@@ -19,23 +19,16 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Collider[] hit = Physics.OverlapSphere(transform.position, range, playerMask);
+        Collider[] hit = Physics.OverlapSphere(transform.position, range, playerMask);
 
-        // if (hit.Length > 0)
-        // {
+        if (hit.Length > 0)
+        {
             nav.SetDestination(target.position);
-        // }
+        }
     }
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(transform.position, range);
-    }
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Bullet"))
-        {
-            Debug.Log("죽음");
-        }
     }
 }
