@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5d69df9d9d11e49d110086ba44295342
+NativeFormatImporter:
+  mainObjectFileID: -1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 165253
+  packageName: CerberosG
+  packageVersion: 1.0
+  assetPath: Assets/CerberosG/Shader/Toon Shading/Toony-Lighted Outline.mat
+  uploadId: 358789
