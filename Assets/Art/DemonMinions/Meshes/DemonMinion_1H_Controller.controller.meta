@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ed93e6f8a142bac4c8233d0f64e39ed9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277426
+  packageName: Stylized Demon Minions Pack
+  packageVersion: 1.0
+  assetPath: Assets/DemonMinions/Meshes/DemonMinion_1H_Controller.controller
+  uploadId: 802820

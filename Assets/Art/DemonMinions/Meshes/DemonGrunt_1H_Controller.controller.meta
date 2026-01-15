@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d2b849dbc280ccd4f9530fc54ed3d871
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277426
+  packageName: Stylized Demon Minions Pack
+  packageVersion: 1.0
+  assetPath: Assets/DemonMinions/Meshes/DemonGrunt_1H_Controller.controller
+  uploadId: 802820
