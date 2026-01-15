@@ -1,8 +1,18 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum Demon
+{
+    idle,
+    walk,
+    attack,
+}
+
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] Animator anim;
+    [SerializeField] Demon currentState;
     [Header("Gizmos")]
     [SerializeField] float range;
     [SerializeField] float smallrange;
@@ -13,7 +23,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] Transform target;
 
     [Header("Info")]
-    [SerializeField] public float hp = 20;
+    [SerializeField] public float hp = 40;
 
 
     
@@ -28,6 +38,7 @@ public class Enemy : MonoBehaviour
     {
         Range();
         SmallRange();
+        
     }
 
     void Range()
@@ -38,11 +49,13 @@ public class Enemy : MonoBehaviour
         {
             nav.isStopped = false;
             print("따라감");
+            anim.SetBool("isMove", true);
             nav.SetDestination(target.position);
         }
         else
         {
             print("멈춤");
+            anim.SetBool("isMove", false);
             nav.isStopped = true;
         } 
     }
@@ -54,10 +67,12 @@ public class Enemy : MonoBehaviour
         if (hit.Length > 0)
         {
             nav.isStopped = true;
+            anim.SetInteger("Attack", 1);
             Debug.Log("공격");
         }
         else
         {
+            anim.SetInteger("Attack", 0);
             nav.isStopped = false;
         }
     }
