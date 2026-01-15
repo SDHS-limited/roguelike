@@ -3,25 +3,26 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-    [SerializeField] float shakeAmount = 3.0f;
-    [SerializeField] float shakeTime = 1.0f;
-    [SerializeField] Camera cam;
- 
-    void Update()
+   private void Update()
     {
-        StartCoroutine(Shake(shakeAmount, shakeTime));
-    }
- 
-    IEnumerator Shake(float ShakeAmount, float ShakeTime)
-    {
-        float timer = 0;
-        while (timer <= ShakeTime)
+        if (Input.GetMouseButtonDown(0))
         {
-            cam.transform.position = 
-                (Vector3)UnityEngine.Random.insideUnitCircle * ShakeAmount;
-            timer += Time.deltaTime;
+            StartCoroutine(Shake(0.2f, 0.2f));
+        }
+    }
+    public IEnumerator Shake(float duration, float magnitude)
+    {
+        Vector3 originalPosition = transform.localPosition;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            float y = Random.Range(-0.1f, 0.1f) * magnitude;
+            transform.localPosition = new Vector3(originalPosition.x, originalPosition.y + y, originalPosition.z);
+            elapsed += Time.deltaTime;
             yield return null;
         }
-        Camera.main.transform.position = new Vector3(0f, 0f, 0f);
+        
+        transform.localPosition = originalPosition;
     }
 }

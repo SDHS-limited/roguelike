@@ -17,9 +17,11 @@ public class Bullet : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // 맞은 대상 확인
-        Debug.Log("Hit: " + collision.gameObject.name);
-
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("나 때렸어?");
+        }
+        
         // 여기서 데미지 처리 가능
         Destroy(gameObject);
     }

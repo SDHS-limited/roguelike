@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] float speed = 5.0f;
+    [SerializeField] public float speed = 5.0f;  //이동 속도
     Rigidbody rb;
 
     [Header("info")]
-    [SerializeField] public float hp = 150;
+    [SerializeField] public float hp = 150; //체력
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
