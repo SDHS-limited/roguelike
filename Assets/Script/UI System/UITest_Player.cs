@@ -33,21 +33,6 @@ public class UITest_Player : MonoBehaviour
      * 
      */
 
-    [Header("Fever Slider")]
-    public Slider feverSlider; //피버 슬라이더
-
-    public float feverValue; //피버 값
-    public float maxFever; //최대 피버 값
-    public float perFever; //백분율 피버 값
-
-    public enum FeverState
-    {
-        None, feverDesr, feverIncr
-    }
-
-    public float feverIncrSpeed; //피버 증가 속도
-    //public float feverDesrSpeed; //피버 감소 속도
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -88,7 +73,6 @@ public class UITest_Player : MonoBehaviour
                 }
         }
     }
-
 
     void OnCollisionEnter(Collision collision)
     {
