@@ -4,8 +4,8 @@ using UnityEngine.UI;
 public class HP_Slider : MonoBehaviour
 {
     [SerializeField] Slider HPslider;
-    public float maxHp = 100;
-    public float curHP = 100;
+    public float maxHp = 150;
+    public float curHP = 150;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

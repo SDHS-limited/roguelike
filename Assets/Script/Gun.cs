@@ -8,8 +8,6 @@ public class Gun : MonoBehaviour
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip fire;
 
-    [SerializeField] Animator anim;
-
     void Update()
     {
         if (Input.GetMouseButtonDown(0))

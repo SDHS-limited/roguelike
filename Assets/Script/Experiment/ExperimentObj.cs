@@ -5,7 +5,8 @@ public class ExperimentObj : MonoBehaviour
     [SerializeField] float range = 6f;
     [SerializeField] LayerMask playerMask;
     [SerializeField] GameObject experiment; // 실험창
-    [SerializeField] Animator anim;
+    [SerializeField] ExperimentManager experimentManager;
+    // [SerializeField] Animator anim;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,7 +21,19 @@ public class ExperimentObj : MonoBehaviour
         if (hit.Length > 0)
         {
             experiment.gameObject.SetActive(true);
-            anim.SetBool("isopen", true);
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            // anim.SetBool("isopen", true);
+        }
+        if (experimentManager.isSelete)
+        {
+            experiment.gameObject.SetActive(false);
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            experimentManager.isSelete = false;
         }
     }
      void OnDrawGizmosSelected()

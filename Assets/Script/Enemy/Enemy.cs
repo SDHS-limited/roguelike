@@ -48,13 +48,11 @@ public class Enemy : MonoBehaviour
         if (hit.Length > 0)
         {
             nav.isStopped = false;
-            print("따라감");
             anim.SetBool("isMove", true);
             nav.SetDestination(target.position);
         }
         else
         {
-            print("멈춤");
             anim.SetBool("isMove", false);
             nav.isStopped = true;
         } 
@@ -68,7 +66,6 @@ public class Enemy : MonoBehaviour
         {
             nav.isStopped = true;
             anim.SetInteger("Attack", 1);
-            Debug.Log("공격");
         }
         else
         {
