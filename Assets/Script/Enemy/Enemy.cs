@@ -23,9 +23,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] Transform target;
 
     [Header("Info")]
-    [SerializeField] public float hp = 40;
-
-
+    [SerializeField] public float hp = 60;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -39,6 +37,10 @@ public class Enemy : MonoBehaviour
         Range();
         SmallRange();
         
+        if(hp <= 0)
+        {
+            Destroy(gameObject);   
+        }
     }
 
     void Range()

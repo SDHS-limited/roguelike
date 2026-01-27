@@ -19,13 +19,13 @@ public class Player : MonoBehaviour
     }
     void move()
     {
-        if (!experimentManager.isSelete)
-        {
+        // if (!experimentManager.isSelete)
+        // {
             float moveH = Input.GetAxisRaw("Horizontal");
             float moveV = Input.GetAxisRaw("Vertical");
             Vector3 move = new Vector3(moveH, 0, moveV);
             transform.Translate(move * speed * Time.deltaTime);  
-        }
+        // }
     }
     void OnCollisionEnter(Collision collision)
     {

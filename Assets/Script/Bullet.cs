@@ -6,7 +6,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] float lifeTime = 3f;
 
     Rigidbody rb;
-
+    Enemy enemy;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -19,7 +19,16 @@ public class Bullet : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
             Debug.Log("나 때렸어?");
+            Destroy(gameObject);
+           
+            if (enemy != null)
+            {
+                Debug.Log("적 맞음!");
+                enemy.hp -= 20;
+            }
+
         }
         
         // 여기서 데미지 처리 가능

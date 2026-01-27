@@ -7,7 +7,7 @@ public class CameraShake : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            StartCoroutine(Shake(0.2f, 0.2f));
+            StartCoroutine(Shake(0.1f, 0.1f));
         }
     }
     public IEnumerator Shake(float duration, float magnitude)
