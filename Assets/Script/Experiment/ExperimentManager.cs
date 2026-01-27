@@ -52,12 +52,12 @@ public class ExperimentManager : MonoBehaviour
 
             nameTexts[i].text = selectedData.name;
             desTexts[i].text = selectedData.Des;
-            ImageText[i]
 
+            // ImageText[i].sprite = selectedData.image;
             // 버튼 클릭 리스너 설정
             selectButtons[i].onClick.AddListener(() =>
             {
-                
+
                 OnSelectExperiment(index);
             });
         }
@@ -76,8 +76,6 @@ public class ExperimentManager : MonoBehaviour
     // 실제 게임 데이터에 능력을 반영하는 곳
     void ApplyEffect(Experiment data)
     {
-        experiment.gameObject.SetActive(true);
-        isSelete = false;
         switch (data.experimentID)
         {
             case 1:
@@ -85,6 +83,20 @@ public class ExperimentManager : MonoBehaviour
                 break;
             case 2:
                 Debug.Log("이동속도가 3 감소합니다.");
+                break;
+            case 3:
+                //치명타 높음, 적 데미지 증가
+                break;
+            case 4:
+                //적 데미지 너프, 총 데미지 너프
+                break;
+            case 5:
+                break;
+            case 6:
+                // 체력 20 추가, 휴우증 1개 추가
+                break;
+            case 7:
+                //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
                 break;
             // 추가적인 ID에 따른 효과들...
         }

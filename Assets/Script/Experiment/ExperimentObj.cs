@@ -28,12 +28,8 @@ public class ExperimentObj : MonoBehaviour
         if (experimentManager.isSelete)
         {
             experiment.gameObject.SetActive(false);
-            Cursor.visible = true;
+            Cursor.visible = false;
             Cursor.lockState = CursorLockMode.None;
-        }
-        else
-        {
-            experimentManager.isSelete = false;
         }
     }
      void OnDrawGizmosSelected()
