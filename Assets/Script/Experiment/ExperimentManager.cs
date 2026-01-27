@@ -8,6 +8,7 @@ public class ExperimentManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] Text[] nameTexts;
     [SerializeField] Text[] desTexts;
+    [SerializeField] Image[] ImageText;
    // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
     [SerializeField] GameObject experiment; // 실험창
@@ -51,6 +52,7 @@ public class ExperimentManager : MonoBehaviour
 
             nameTexts[i].text = selectedData.name;
             desTexts[i].text = selectedData.Des;
+            ImageText[i]
 
             // 버튼 클릭 리스너 설정
             selectButtons[i].onClick.AddListener(() =>
