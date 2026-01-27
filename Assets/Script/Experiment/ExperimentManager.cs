@@ -11,18 +11,20 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] Image[] ImageText;
    // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
-    [SerializeField] GameObject experiment; // 실험창
+    [SerializeField] GameObject experiment2; // 실험창
 
     [Header("Data Pool")]
     [SerializeField] Experiment[] allExperiments; // 모든 능력 리스트
     [DoNotSerialize] public bool isSelete = false;
 
-    [Header("Effect")]
-
+    [Header("ID")]
+    Bullet bullet;
+    Player player;
     private List<Experiment> currentOptions = new List<Experiment>();
 
     void Start()
     {
+        experiment2.gameObject.SetActive(false);
         ShowThreeRandomExperiments();
     }
     void Awake() {
@@ -52,7 +54,7 @@ public class ExperimentManager : MonoBehaviour
 
             nameTexts[i].text = selectedData.name;
             desTexts[i].text = selectedData.Des;
-
+            isSelete = true;
             // ImageText[i].sprite = selectedData.image;
             // 버튼 클릭 리스너 설정
             selectButtons[i].onClick.AddListener(() =>
@@ -66,7 +68,6 @@ public class ExperimentManager : MonoBehaviour
     // 능력을 선택했을 때 실행되는 함수
     public void OnSelectExperiment(int index)
     {
-        isSelete = true;
         Experiment chosen = currentOptions[index];
         Debug.Log($"{chosen.name} 선택됨!");
 
@@ -80,23 +81,44 @@ public class ExperimentManager : MonoBehaviour
         {
             case 1:
                 Debug.Log("공격력이 10 증가합니다.");
+                bullet.Damage += 10;
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 2:
                 Debug.Log("이동속도가 3 감소합니다.");
+                player.speed -= 2;
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 3:
                 //치명타 높음, 적 데미지 증가
+                
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 4:
                 //적 데미지 너프, 총 데미지 너프
+              
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 5:
+              
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 6:
                 // 체력 20 추가, 휴우증 1개 추가
+              
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             case 7:
                 //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
+              
+                // ShowThreeRandomExperiments();
+                // isSelete = true;
                 break;
             // 추가적인 ID에 따른 효과들...
         }

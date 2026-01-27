@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            hp.curHP -= 3;
+            hp.curHP -= 10;
         }
     }
 }
