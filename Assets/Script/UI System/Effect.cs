@@ -29,4 +29,16 @@ public class Effect : MonoBehaviour
         c.a = 0f;
         image.color = c;
     }
+    public IEnumerator Heal()
+    {
+        Color c = image.color;
+        c = Color.green;
+        c.a = 0.3f;
+        image.color = c;
+
+        yield return new WaitForSeconds(0.1f);
+
+        c.a = 0f;
+        image.color = c;
+    }
 }

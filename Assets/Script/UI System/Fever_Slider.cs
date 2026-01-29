@@ -24,7 +24,7 @@ public class Fever_Slider : MonoBehaviour
     public float feverValue;              // 피버 수치
     [SerializeField] private float maxFever;     // 최대 피버 수치
     [SerializeField] private float minFever;     // 최소 피버 수치
-    [SerializeField] private float currentFever; // 현재 피버 수치
+    [SerializeField] public float currentFever; // 현재 피버 수치
     private float perFever;                       // 목표 피버 수치
 
     public enum FeverState

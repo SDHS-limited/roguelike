@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Collections;
 
 public class ExperimentManager : MonoBehaviour
 {
@@ -20,11 +21,16 @@ public class ExperimentManager : MonoBehaviour
     [Header("ID")]
     [SerializeField] Bullet bullet;
     [SerializeField] Player player;
+    
+    [Header("Effect")]
+    [SerializeField] Effect effect;
+    [SerializeField] Fever_Slider fever_Slider;
+
     private List<Experiment> currentOptions = new List<Experiment>();
+
 
     void Start()
     {
-        experiment2.gameObject.SetActive(false);
         ShowThreeRandomExperiments();
     }
     void Awake() {
@@ -34,7 +40,7 @@ public class ExperimentManager : MonoBehaviour
     void ShowThreeRandomExperiments()
     {
         if (allExperiments.Length < 3) return;
-
+        isSelete = true;
         // 1. 중복 없는 인덱스 3개 뽑기
         List<int> indices = new List<int>();
         while (indices.Count < 3)
@@ -48,18 +54,17 @@ public class ExperimentManager : MonoBehaviour
         // 2. UI 업데이트 및 버튼 이벤트 할당
         for (int i = 0; i < 3; i++)
         {
-            int index = i; // 클로저(Closure) 문제 방지용 변수
+            int index = i;
             Experiment selectedData = allExperiments[indices[i]];
             currentOptions.Add(selectedData);
 
             nameTexts[i].text = selectedData.name;
             desTexts[i].text = selectedData.Des;
-            isSelete = true;
-            // ImageText[i].sprite = selectedData.image;
-            // 버튼 클릭 리스너 설정
+
+            selectButtons[i].onClick.RemoveAllListeners();
+
             selectButtons[i].onClick.AddListener(() =>
             {
-
                 OnSelectExperiment(index);
             });
         }
@@ -71,54 +76,65 @@ public class ExperimentManager : MonoBehaviour
         Experiment chosen = currentOptions[index];
         Debug.Log($"{chosen.name} 선택됨!");
 
-        ApplyEffect(chosen); 
+        StartCoroutine(ApplyEffect(chosen)); 
     }
 
     // 실제 게임 데이터에 능력을 반영하는 곳
-    void ApplyEffect(Experiment data)
+    IEnumerator ApplyEffect(Experiment data)
     {
         switch (data.experimentID)
         {
             case 1:
-                Debug.Log("공격력이 10 증가합니다.");
                 bullet.Damage += 10;
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                fever_Slider.currentFever += 5;
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 2:
-                Debug.Log("이동속도가 2 감소합니다.");
+                yield return new WaitForSeconds(0.3f);
+
                 player.speed -= 2;
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                fever_Slider.currentFever += 5;
+                StartCoroutine(effect.Damage());
+
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 3:
                 //치명타 높음, 적 데미지 증가
-                
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+
+                fever_Slider.currentFever += 5;
+
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 4:
                 //적 데미지 너프, 총 데미지 너프
 
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                fever_Slider.currentFever += 5;
+
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 5:
+                fever_Slider.currentFever += 5;
 
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 6:
                 // 체력 20 추가, 휴우증 1개 추가
-                
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                fever_Slider.currentFever += 5;
+
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             case 7:
                 //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
-              
-                // ShowThreeRandomExperiments();
-                // isSelete = true;
+                fever_Slider.currentFever += 5;
+
+                ShowThreeRandomExperiments();
+                isSelete = false;
                 break;
             // 추가적인 ID에 따른 효과들...
         }

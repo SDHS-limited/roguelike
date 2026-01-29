@@ -11,6 +11,7 @@ public class ExperimentObj : MonoBehaviour
     void Start()
     {
         experiment.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.Confined;
     }
 
     // Update is called once per frame
@@ -22,20 +23,14 @@ public class ExperimentObj : MonoBehaviour
         {
             experiment.gameObject.SetActive(true);
             Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState = CursorLockMode.Confined;
             // anim.SetBool("isopen", true);
         }
-        // if (!experimentManager.isSelete)
-        // {
-        //     experiment.gameObject.SetActive(false);
-        //     Cursor.visible = false;
-        //     Cursor.lockState = CursorLockMode.None;
-        // }
-        else
+        if (!experimentManager.isSelete)
         {
             experiment.gameObject.SetActive(false);
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState = CursorLockMode.Confined;
         }
     }
      void OnDrawGizmosSelected()
