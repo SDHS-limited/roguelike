@@ -18,8 +18,8 @@ public class ExperimentManager : MonoBehaviour
     [DoNotSerialize] public bool isSelete = false;
 
     [Header("ID")]
-    Bullet bullet;
-    Player player;
+    [SerializeField] Bullet bullet;
+    [SerializeField] Player player;
     private List<Experiment> currentOptions = new List<Experiment>();
 
     void Start()
@@ -86,7 +86,7 @@ public class ExperimentManager : MonoBehaviour
                 // isSelete = true;
                 break;
             case 2:
-                Debug.Log("이동속도가 3 감소합니다.");
+                Debug.Log("이동속도가 2 감소합니다.");
                 player.speed -= 2;
                 // ShowThreeRandomExperiments();
                 // isSelete = true;
@@ -99,18 +99,18 @@ public class ExperimentManager : MonoBehaviour
                 break;
             case 4:
                 //적 데미지 너프, 총 데미지 너프
-              
+
                 // ShowThreeRandomExperiments();
                 // isSelete = true;
                 break;
             case 5:
-              
+
                 // ShowThreeRandomExperiments();
                 // isSelete = true;
                 break;
             case 6:
                 // 체력 20 추가, 휴우증 1개 추가
-              
+                
                 // ShowThreeRandomExperiments();
                 // isSelete = true;
                 break;

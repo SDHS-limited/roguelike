@@ -3,6 +3,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] ExperimentManager experimentManager;
+    [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
     [SerializeField] public float speed = 5.0f;  //이동 속도
     Rigidbody rb;
@@ -32,6 +33,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy"))
         {
             hp.curHP -= 10;
+            StartCoroutine(effect.Damage());
         }
     }
 }
