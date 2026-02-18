@@ -93,8 +93,9 @@ public class ExperimentManager : MonoBehaviour
             case 2:
                 yield return new WaitForSeconds(0.3f);
 
-                player.speed -= 2;
-                fever_Slider.currentFever += 5;
+                player.speed -= 2f;
+                player.damage -= 4f;
+                fever_Slider.currentFever += 10;
                 StartCoroutine(effect.Damage());
 
                 ShowThreeRandomExperiments();
