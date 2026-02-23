@@ -86,7 +86,7 @@ public class ExperimentManager : MonoBehaviour
         {
             case 1:
                 bullet.Damage += 10;
-                fever_Slider.currentFever += 5;
+                fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 5f, Time.deltaTime * 10f);
                 ShowThreeRandomExperiments();
                 isSelete = false;
                 break;
@@ -95,7 +95,7 @@ public class ExperimentManager : MonoBehaviour
 
                 player.speed -= 2f;
                 player.damage -= 4f;
-                fever_Slider.currentFever += 10;
+                fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 10f, Time.deltaTime * 10f);
                 StartCoroutine(effect.Damage());
 
                 ShowThreeRandomExperiments();
