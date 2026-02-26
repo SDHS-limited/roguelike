@@ -60,7 +60,7 @@ public class Fever_Slider : MonoBehaviour
             {
                 // 피버 슬라이더를 perFever 값까지
                 // feverIncrSpeed 속도로 부드럽게 증가시킨다
-                feverSlider.value = Mathf.MoveTowards(
+                feverSlider.value = Mathf.Lerp(
                     feverSlider.value,
                     perFever,
                     feverIncrSpeed * Time.deltaTime
