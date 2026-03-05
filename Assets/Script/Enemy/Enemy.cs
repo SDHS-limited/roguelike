@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] Animator anim;
     [SerializeField] Demon currentState;
+    [SerializeField] ParticleSystem bloodEffect;
     [Header("Gizmos")]
     [SerializeField] float range;
     [SerializeField] float smallrange;
@@ -29,6 +30,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         nav = GetComponent<NavMeshAgent>();
+        bloodEffect.Stop();
     }
 
     // Update is called once per frame
@@ -82,5 +84,13 @@ public class Enemy : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, range);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, smallrange);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bullet"))
+        {
+            bloodEffect.Play();        
+        }
     }
 }

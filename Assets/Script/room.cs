@@ -27,20 +27,9 @@ public class room : MonoBehaviour
 
         if (hit.Length == 0 && !isClear)
         {
-            isClear = true;
             StartCoroutine(RoomClear()); 
         }
 
-    }
-
-    public void EnemyDies()
-    {
-        alliveEnemy--;
-
-        if(alliveEnemy <= 0)
-        {
-            RoomClear();
-        }
     }
 
     IEnumerator RoomClear()

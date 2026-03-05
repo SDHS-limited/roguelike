@@ -28,7 +28,7 @@ public class Bullet : MonoBehaviour
             {
                 enemy.hp -= Damage;
             }
-
+            
         }
         else
         {
