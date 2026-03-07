@@ -6,7 +6,6 @@ using UnityEngine;
 public class FullMapToggle : MonoBehaviour
 {
     public GameObject fullMapCanvas;   // 전체맵 Canvas
-    public GameObject miniMapCanvas;   // 미니맵 UI
 
     public MonoBehaviour[] controlScripts; // CharacterMove, MouseMove를 담을 배열
 
@@ -18,13 +17,6 @@ public class FullMapToggle : MonoBehaviour
         {
             isMapOpen = !isMapOpen;               // 상태 반전
             fullMapCanvas.SetActive(isMapOpen);       // 전체맵 Canvas 활성/비활성
-            miniMapCanvas.SetActive(!isMapOpen);      // 미니맵 Canvas 활성/비활성 반전
         }
-
-        // 맵 상태에 따라 조작 스크립트 활성/비활성
-        //foreach (MonoBehaviour script in controlScripts)
-        //{
-        //    script.enabled = !isMapOpen;
-        //}
     }
 }

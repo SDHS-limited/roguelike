@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] Animator anim;
     [SerializeField] Demon currentState;
     [SerializeField] ParticleSystem bloodEffect;
+
     [Header("Gizmos")]
     [SerializeField] float range;
     [SerializeField] float smallrange;
