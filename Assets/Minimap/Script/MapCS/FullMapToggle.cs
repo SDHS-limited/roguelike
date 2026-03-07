@@ -14,7 +14,7 @@ public class FullMapToggle : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             isMapOpen = !isMapOpen;               // 상태 반전
             fullMapCanvas.SetActive(isMapOpen);       // 전체맵 Canvas 활성/비활성
@@ -22,9 +22,9 @@ public class FullMapToggle : MonoBehaviour
         }
 
         // 맵 상태에 따라 조작 스크립트 활성/비활성
-        foreach (MonoBehaviour script in controlScripts)
-        {
-            script.enabled = !isMapOpen;
-        }
+        //foreach (MonoBehaviour script in controlScripts)
+        //{
+        //    script.enabled = !isMapOpen;
+        //}
     }
 }
