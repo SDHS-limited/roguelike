@@ -31,6 +31,32 @@ public class Enemy : MonoBehaviour
     {
         nav = GetComponent<NavMeshAgent>();
         bloodEffect.Stop();
+        RegisterToMaps();
+    }
+
+    void OnDestroy()
+    {
+        UnregisterFromMaps();
+    }
+
+    /// <summary> 미니맵/전체맵 매니저에 몬스터 아이콘 등록 (비활성 오브젝트도 찾기) </summary>
+    void RegisterToMaps()
+    {
+        var minimap = FindFirstObjectByType<MinimapManeger>(FindObjectsInactive.Include);
+        if (minimap != null) minimap.RegisterMonster(this);
+
+        var fullmap = FindFirstObjectByType<FullMapManager>(FindObjectsInactive.Include);
+        if (fullmap != null) fullmap.RegisterMonster(this);
+    }
+
+    /// <summary> 미니맵/전체맵에서 몬스터 아이콘 제거 </summary>
+    void UnregisterFromMaps()
+    {
+        var minimap = FindFirstObjectByType<MinimapManeger>(FindObjectsInactive.Include);
+        if (minimap != null) minimap.UnregisterMonster(this);
+
+        var fullmap = FindFirstObjectByType<FullMapManager>(FindObjectsInactive.Include);
+        if (fullmap != null) fullmap.UnregisterMonster(this);
     }
 
     // Update is called once per frame
