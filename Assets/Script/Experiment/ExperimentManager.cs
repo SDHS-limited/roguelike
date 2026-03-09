@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Collections;
@@ -8,8 +7,8 @@ using System.Collections;
 public class ExperimentManager : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] TMP_Text[] nameTexts;
-    [SerializeField] TMP_Text[] desTexts;
+    [SerializeField] Text[] nameTexts;
+    [SerializeField] Text[] desTexts;
     [SerializeField] Image[] ImageText;
    // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
