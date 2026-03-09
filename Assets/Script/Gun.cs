@@ -1,5 +1,9 @@
+using System;
 using System.Collections;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Gun : MonoBehaviour
 {
@@ -10,69 +14,86 @@ public class Gun : MonoBehaviour
     [SerializeField] AudioClip fire;
     
     [Header("recoil")]
-    [SerializeField] Transform arm;     // 팔 본 또는 총 오브젝트
-    [SerializeField] float recoilAngle = 10f; //반동 세기
-    [SerializeField] float recoilSpeed = 20f; //튕기는 소리
-    [SerializeField] float returnSpeed = 10f; //복귀 소리
-    Quaternion originalRotation;
-    bool isRecoiling = false;
+    [SerializeField] GameObject GunObject;
+    [SerializeField] float reloadAngle = 360f;
+    [SerializeField] float reloadTime = 0.3f; 
+    Quaternion startRot;
+
+    [SerializeField] GameObject arm;
+    [SerializeField] float armAngle = -7;
+    [SerializeField] float armTime = 0.3f;
+
+    [SerializeField] float currentammo = 7f;
+    [SerializeField] TMP_Text ammo; 
 
     void Start()
     {
-        originalRotation = arm.localRotation;
+        startRot = GunObject.transform.localRotation;
+        startRot = arm.transform.localRotation;
     }
 
     void Update()
     {
+        ammo.text = ""+currentammo;
         if (Input.GetMouseButtonDown(0))
         {
+            if(currentammo <= 0) return;
             Shoot();
-            // anim.SetTrigger("Shoot");
+            StartCoroutine(Arm());
             audioSource.PlayOneShot(fire);
+        }
+        
+
+        if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
+        {
+            currentammo = 7;
 
         }
-        else
+    }
+    
+    IEnumerator Arm()
+    {
+        float rotated = 0f;
+        float speed = armAngle / armTime;
+
+        // 360도 회전
+        while (rotated < reloadAngle)
         {
-            // anim.SetBool("IsShoot", false);
+            float step = speed * Time.deltaTime;
+
+            GunObject.transform.Rotate(step, 0, 0);
+
+            rotated += step;
+
+            yield return null;
         }
-    }
-    public void Fire()
-    {
-        if (!isRecoiling)
-            StartCoroutine(Recoil());
+        arm.transform.localRotation = startRot;
     }
 
-    IEnumerator Recoil()
+    // 총 회전 하면서 장전 모션
+    IEnumerator ReloadAnim()
     {
-        isRecoiling = true;
+        float rotated = 0f;
+        float speed = reloadAngle / reloadTime;
 
-        // 1️⃣ 위로 빠르게 튕김
-        Quaternion recoilRotation =
-            originalRotation * Quaternion.Euler(-recoilAngle, 0f, 0f);
-
-        float t = 0f;
-        while (t < 1f)
+        // 360도 회전
+        while (rotated < reloadAngle)
         {
-            t += Time.deltaTime * recoilSpeed;
-            arm.localRotation = Quaternion.Slerp(originalRotation, recoilRotation, t);
+            float step = speed * Time.deltaTime;
+
+            GunObject.transform.Rotate(step, 0, 0);
+
+            rotated += step;
+
             yield return null;
         }
 
-        // 2️⃣ 다시 복구
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * returnSpeed;
-            arm.localRotation = Quaternion.Slerp(recoilRotation, originalRotation, t);
-            yield return null;
-        }
-
-        arm.localRotation = originalRotation;
-        isRecoiling = false;
+        // 원래 회전값으로 복귀
+        GunObject.transform.localRotation = startRot;
     }
-
     void Shoot()
     {
+        currentammo--;
         Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
     }   
 }
