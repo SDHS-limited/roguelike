@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "Experiment", menuName = "Scriptable Objects/Experiment")]
