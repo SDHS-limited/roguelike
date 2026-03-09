@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public Transform cameraTransform;
+    // Transform값은 카메라 움직임에 따라 달라지므로,해당 값을 카메라에 넘겨주기 위한
+    // CameraTransform 변수 선언
+
     [SerializeField] ExperimentManager experimentManager;
     [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
