@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: NewScripableObject
   m_EditorClassIdentifier: Assembly-CSharp::GenerationSettings
   generation:
-    minRooms: 0
-    maxRooms: 0
+    minRooms: 10
+    maxRooms: 30
     amountOfAdjacentRoomsToConnect: 0
     minRoomWidth: 0
     maxRoomWidth: 0

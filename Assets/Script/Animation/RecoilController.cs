@@ -17,5 +17,9 @@ public class RecoilController : MonoBehaviour
         {
             anim.SetTrigger("Recoil");
         }
+        else
+        {
+            anim.SetTrigger("else");
+        }
     }
 }

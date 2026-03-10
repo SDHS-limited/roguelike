@@ -3,15 +3,16 @@ using UnityEngine.EventSystems;
 
 public class CameraRot : MonoBehaviour
 {
-    public Transform playerBody;
-
+    [SerializeField] Transform playerBody;
+    [SerializeField] Transform arm;
+ 
     [Header("Settings")]
-    public float mouseSensitivity = 100f;
-    public float smoothTime = 0.02f;   // 0 => 즉시, 큰 값 => 더 느리게 따라감
-    public bool invertY = false;
-    public float minPitch = -80f; // 아래로 내리는 한계
-    public float maxPitch = 80f;  // 위로 올리는 한계
-    public bool lockCursor = true;
+    [SerializeField] float mouseSensitivity = 100f;
+    [SerializeField] float smoothTime = 0.02f;   // 0 => 즉시, 큰 값 => 더 느리게 따라감
+    [SerializeField] bool invertY = false;
+    [SerializeField] float minPitch = -80f; // 아래로 내리는 한계
+    [SerializeField] float maxPitch = 80f;  // 위로 올리는 한계
+    [SerializeField] bool lockCursor = true;
 
     float pitch = 0f; // 카메라 상하 회전(음수 = 아래, 양수 = 위)
     float yaw = 0f;   // 플레이어 좌우 회전
@@ -64,6 +65,7 @@ public class CameraRot : MonoBehaviour
         // 적용
         // transform.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f); // 카메라는 pitch만
         playerBody.eulerAngles = new Vector3(0f, currentRotation.y, 0f);    // 플레이어 바디는 yaw만
+        // arm.localEulerAngles = new Vector3(currentRotation.x, currentRotation.y, 0f);
         //Debug.Log($"Mouse Y: {mouseY}, Pitch: {pitch}, Current X: {currentRotation.x}");
 
         if (isUIOpen)
