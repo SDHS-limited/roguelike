@@ -39,7 +39,7 @@ public class Gun : MonoBehaviour
         {
             if(currentammo <= 0) return;
             Shoot();
-            audioSource.PlayOneShot(fire);
+           // audioSource.PlayOneShot(fire);
         }
         
 
