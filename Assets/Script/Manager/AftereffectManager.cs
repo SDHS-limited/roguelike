@@ -5,7 +5,19 @@ public class AftereffectManager : MonoBehaviour
 {
     [SerializeField] Player player;
 
+    void Start()
+    {
+        
+    }
 
+    void Update()
+    {
+        
+    }
+
+    
+
+    #region 후유증 능력
     public IEnumerator SpeedDown()
     {
         player.speed = 2f;
@@ -20,4 +32,5 @@ public class AftereffectManager : MonoBehaviour
         player.damage = 10;
     }
 
+    #endregion
 }
