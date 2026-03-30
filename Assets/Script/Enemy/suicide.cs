@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 public class suicide : MonoBehaviour
 {
+    [SerializeField] HP_Slider playerHP;
     [Header("AI")]
     [SerializeField] NavMeshAgent nav;
     [SerializeField] Transform target;
@@ -11,6 +12,7 @@ public class suicide : MonoBehaviour
     [Header("Gizmos")]
     [SerializeField] float range;
     [SerializeField] LayerMask playerMask;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,5 +41,14 @@ public class suicide : MonoBehaviour
     void OnDrawGizmosSelected() {
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(this.transform.position, range);    
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            //폭발 파티클 추가
+            Destroy(this.gameObject);
+            playerHP.curHP -= 15;
+        }
     }
 }

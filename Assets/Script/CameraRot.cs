@@ -83,7 +83,7 @@ public class CameraRot : MonoBehaviour
 
             // 원하는 회전값 누적
             yaw += mouseX;
-            pitch -= mouseY;
+            // pitch -= mouseY;
 
             // 상하 각도 클램핑 (-90도 ~ 90도)
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
@@ -96,7 +96,7 @@ public class CameraRot : MonoBehaviour
             transform.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f); // 카메라는 상하(Pitch)만 움직임
             playerBody.eulerAngles = new Vector3(0f, currentRotation.y, 0f);     // 플레이어 몸통은 좌우(Yaw)만 움직임
             
-            arm.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f);
+            // arm.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f);
         }
     }
 }

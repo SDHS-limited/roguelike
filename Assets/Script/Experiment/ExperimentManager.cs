@@ -13,6 +13,7 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] Image[] ImageText;
    // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
+    [SerializeField] SeleteCardAnim[] cardAnims;
     [SerializeField] GameObject experiment2; // 실험창
 
     [Header("Data Pool")]
@@ -28,6 +29,7 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] Fever_Slider fever_Slider;
 
     private List<Experiment> currentOptions = new List<Experiment>();
+    [SerializeField] SeleteCardAnim SeleteCardAnim;
 
 
     void Start()
@@ -77,12 +79,16 @@ public class ExperimentManager : MonoBehaviour
         Experiment chosen = currentOptions[index];
         Debug.Log($"{chosen.name} 선택됨!");
 
+        StartCoroutine(cardAnims[index].Anim(1f));
         StartCoroutine(ApplyEffect(chosen)); 
+
     }
+
 
     // 실제 게임 데이터에 능력을 반영하는 곳
     IEnumerator ApplyEffect(Experiment data)
     {
+        yield return new WaitForSeconds(1f); // 애니메이션 기다림
         switch (data.experimentID)
         {
             case 1:

@@ -17,7 +17,7 @@ public class HP_Slider : MonoBehaviour
     {
         // if (Input.GetKeyDown(KeyCode.Backspace))
         // {
-        //     curHP -= 10;
+        //     this.HPslider.value = Mathf.Lerp(curHP, maxHp, this.HPslider.value - Time.deltaTime);
         // }
         // if(curHP >= 0)
         // {

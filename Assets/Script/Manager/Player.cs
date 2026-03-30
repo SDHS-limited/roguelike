@@ -90,7 +90,7 @@ public class Player : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / dashDuration;
 
-            // ⭐ 부드러운 가속/감속 느낌
+            // 부드러운 가속/감속 느낌
             t = Mathf.SmoothStep(0f, 1f, t);
 
             transform.position = Vector3.Lerp(startPos, targetPos, t);
