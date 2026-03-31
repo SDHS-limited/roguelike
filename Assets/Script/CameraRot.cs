@@ -72,7 +72,7 @@ public class CameraRot : MonoBehaviour
         }
 
         // 💡 4. 커서가 잠겨 있을 때(즉, 게임 플레이 중일 때만) 시야가 회전하도록 안전장치를 추가했습니다.
-        // if (Cursor.lockState == CursorLockMode.None)
+        //if (Cursor.lockState == CursorLockMode.Locked)
         //{
             // 마우스 입력 
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
