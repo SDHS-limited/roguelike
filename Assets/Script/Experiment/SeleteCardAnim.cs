@@ -6,10 +6,16 @@ public class SeleteCardAnim : MonoBehaviour
 {
     [SerializeField] public RectTransform rectTransform;
     [SerializeField] public Image image;
+
+    private Vector2 originalPos;
+    private Color originalColor;
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         image = GetComponent<Image>();
+
+        originalPos = rectTransform.anchoredPosition;
+        originalColor = image.color;
     }
 
     public IEnumerator Anim(float duration)
@@ -38,8 +44,10 @@ public class SeleteCardAnim : MonoBehaviour
             yield return null;
         }
 
-        // 최종 값 확정
-        rectTransform.anchoredPosition = endPos;
-        image.color = endColor;
+        yield return new WaitForSeconds(1.5f);
+       
+        //원래대로 되돌리기
+        rectTransform.anchoredPosition = originalPos;
+        image.color = originalColor;
     }
 }
