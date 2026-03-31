@@ -26,7 +26,7 @@ public class ExperimentObj : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             // anim.SetBool("isopen", true);
         }
-        if (!experimentManager.isSelete)
+        if (experimentManager.isSelete)
         {
             experiment.gameObject.SetActive(false);
             Cursor.visible = false;

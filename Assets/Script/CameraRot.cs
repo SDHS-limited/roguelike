@@ -72,8 +72,8 @@ public class CameraRot : MonoBehaviour
         }
 
         // 💡 4. 커서가 잠겨 있을 때(즉, 게임 플레이 중일 때만) 시야가 회전하도록 안전장치를 추가했습니다.
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
+        // if (Cursor.lockState == CursorLockMode.None)
+        //{
             // 마우스 입력 
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
@@ -97,6 +97,6 @@ public class CameraRot : MonoBehaviour
             playerBody.eulerAngles = new Vector3(0f, currentRotation.y, 0f);     // 플레이어 몸통은 좌우(Yaw)만 움직임
             
             // arm.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f);
-        }
+        //}
     }
 }

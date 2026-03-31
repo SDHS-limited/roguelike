@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] Animator anim;
     [SerializeField] Demon currentState;
-    [SerializeField] ParticleSystem bloodEffect;
+    //[SerializeField] ParticleSystem bloodEffect;
 
     [Header("Gizmos")]
     [SerializeField] float range;
@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         nav = GetComponent<NavMeshAgent>();
-        bloodEffect.Stop();
+        //bloodEffect.Stop();
         RegisterToMaps();
     }
 
@@ -117,7 +117,7 @@ public class Enemy : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Bullet"))
         {
-            bloodEffect.Play();        
+           // bloodEffect.Play();        
         }
     }
 }

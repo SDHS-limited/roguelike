@@ -35,6 +35,7 @@ public class ExperimentManager : MonoBehaviour
     void Start()
     {
         ShowThreeRandomExperiments();
+        isSelete = false;
     }
     void Awake() {
         Application.targetFrameRate = 60;
@@ -95,6 +96,9 @@ public class ExperimentManager : MonoBehaviour
                 bullet.Damage += 10;
                 fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 5f, Time.deltaTime * 10f);
                 ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 2:
@@ -103,9 +107,11 @@ public class ExperimentManager : MonoBehaviour
                 player.speed -= 2f;
                 player.damage -= 4f;
                 fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 10f, Time.deltaTime * 10f);
-                StartCoroutine(effect.Damage());
+                StartCoroutine(effect.Damage()); //이펙트
+                ShowThreeRandomExperiments(); //카드 리셋
 
-                ShowThreeRandomExperiments();
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 3:
@@ -114,34 +120,44 @@ public class ExperimentManager : MonoBehaviour
                 fever_Slider.currentFever += 5;
 
                 ShowThreeRandomExperiments();
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 4:
                 //적 데미지 너프, 총 데미지 너프
 
                 fever_Slider.currentFever += 5;
-
                 ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 5:
                 fever_Slider.currentFever += 5;
-
                 ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 6:
                 // 체력 20 추가, 휴우증 1개 추가
                 fever_Slider.currentFever += 5;
-
                 ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             case 7:
                 //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
                 fever_Slider.currentFever += 5;
-
                 ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
                 isSelete = false;
                 break;
             // 추가적인 ID에 따른 효과들...
