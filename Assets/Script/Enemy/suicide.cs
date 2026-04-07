@@ -5,6 +5,8 @@ using UnityEngine.AI;
 public class suicide : MonoBehaviour
 {
     [SerializeField] HP_Slider playerHP;
+    [SerializeField] float hp = 120;
+
     [Header("AI")]
     [SerializeField] NavMeshAgent nav;
     [SerializeField] Transform target;
@@ -23,6 +25,11 @@ public class suicide : MonoBehaviour
     void Update()
     {
         Range();
+        
+        if(hp <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
     void Range()
     {
@@ -47,8 +54,12 @@ public class suicide : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             //폭발 파티클 추가
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             playerHP.curHP -= 15;
+        }
+        if (collision.gameObject.CompareTag("Bullet"))
+        {
+            hp -= 20;
         }
     }
 }
