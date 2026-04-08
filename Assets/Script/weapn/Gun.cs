@@ -14,8 +14,9 @@ public class Gun : MonoBehaviour
     [SerializeField] AudioClip fire;
     
     [SerializeField] float currentammo = 7f;
-    [SerializeField] TMP_Text ammo; 
+    [SerializeField] TMP_Text ammo;
     [SerializeField] Reload_Slider reload_Slider;
+    [SerializeField] Recoil recoil;
 
     void Start()
     {
@@ -32,6 +33,8 @@ public class Gun : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if(currentammo <= 0) return;
+            if (!recoil.CanFire) return;
+
             Shoot();
            // audioSource.PlayOneShot(fire);
         }
@@ -43,6 +46,8 @@ public class Gun : MonoBehaviour
             currentammo = 7;
             StartCoroutine(reload_Slider.FillRoutine());
         }
+
+
     }
     
 
@@ -72,5 +77,6 @@ public class Gun : MonoBehaviour
     {
         currentammo--;
         Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        recoil.Fire();
     }   
 }

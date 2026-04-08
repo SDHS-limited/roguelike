@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -105,6 +106,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            hp.HPslider.value = Mathf.Lerp(hp.curHP, hp.maxHp, hp.HPslider.value - Time.deltaTime);
             hp.curHP -= damage;
             StartCoroutine(effect.Damage());
         }

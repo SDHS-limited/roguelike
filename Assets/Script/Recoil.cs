@@ -41,11 +41,6 @@ public class Recoil : MonoBehaviour
         // 3. 실제 오브젝트의 로컬 회전값에 적용
         transform.localEulerAngles = currentRotation;
 
-        // 테스트용: 마우스 왼쪽 버튼 클릭 + 팔이 제자리로 돌아왔을 때(CanFire == true)만 발사
-        if (Input.GetButtonDown("Fire1") && CanFire)
-        {
-            Fire();
-        }
     }
 
     public void Fire()
