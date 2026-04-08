@@ -13,28 +13,22 @@ public class Gun : MonoBehaviour
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip fire;
     
-    // [Header("recoil")]
-    // [SerializeField] GameObject GunObject;
-    // [SerializeField] float reloadAngle = 360f;
-    // [SerializeField] float reloadTime = 0.3f;
-    // Quaternion startRot;
-
-    // [SerializeField] GameObject arm;
-    // [SerializeField] float armAngle = -7;
-    // [SerializeField] float armTime = 0.3f;
-
     [SerializeField] float currentammo = 7f;
     [SerializeField] TMP_Text ammo; 
+    [SerializeField] Reload_Slider reload_Slider;
 
     void Start()
     {
         // startRot = GunObject.transform.localRotation;
         // startRot = arm.transform.localRotation;
+        reload_Slider.gameObject.SetActive(false);
     }
 
     void Update()
     {
         ammo.text = ""+currentammo;
+        
+
         if (Input.GetMouseButtonDown(0))
         {
             if(currentammo <= 0) return;
@@ -45,28 +39,13 @@ public class Gun : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
         {
+            print("장전중");
             currentammo = 7;
+            StartCoroutine(reload_Slider.FillRoutine());
         }
     }
     
-    // IEnumerator Arm()
-    // {
-    //     float rotated = 0f;
-    //     float speed = armAngle / armTime;
 
-    //     // 360도 회전
-    //     while (rotated < reloadAngle)
-    //     {
-    //         float step = speed * Time.deltaTime;
-
-    //         GunObject.transform.Rotate(step, 0, 0);
-
-    //         rotated += step;
-
-    //         yield return null;
-    //     }
-    //     arm.transform.localRotation = startRot;
-    // }
 
     // // 총 회전 하면서 장전 모션
     // IEnumerator ReloadAnim()
