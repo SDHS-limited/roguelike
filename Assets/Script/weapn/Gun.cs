@@ -12,6 +12,13 @@ public class Gun : MonoBehaviour
 
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip fire;
+
+    [Header("Gun")]
+    [SerializeField] Transform GunObject;   // 회전시킬 총 오브젝트
+    [SerializeField] float reloadAngle = 360f; // 총이 회전할 각도
+    [SerializeField] float reloadTime = 1f; // 장전 시간
+
+    private Quaternion startRot; // 시작 회전값 저장
     
     [SerializeField] float currentammo = 7f;
     [SerializeField] TMP_Text ammo;
@@ -20,7 +27,7 @@ public class Gun : MonoBehaviour
 
     void Start()
     {
-        // startRot = GunObject.transform.localRotation;
+        startRot = GunObject.transform.localRotation;
         // startRot = arm.transform.localRotation;
         reload_Slider.gameObject.SetActive(false);
     }
@@ -36,15 +43,16 @@ public class Gun : MonoBehaviour
             if (!recoil.CanFire) return;
 
             Shoot();
-           // audioSource.PlayOneShot(fire);
+            // audioSource.PlayOneShot(fire);
         }
         
 
         if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
         {
-            print("장전중");
+            if (!recoil.CanFire) return;
             currentammo = 7;
             StartCoroutine(reload_Slider.FillRoutine());
+            StartCoroutine(ReloadAnim());
         }
 
 
@@ -52,27 +60,27 @@ public class Gun : MonoBehaviour
     
 
 
-    // // 총 회전 하면서 장전 모션
-    // IEnumerator ReloadAnim()
-    // {
-    //     float rotated = 0f;
-    //     float speed = reloadAngle / reloadTime;
+    // 총 회전 하면서 장전 모션
+    IEnumerator ReloadAnim()
+    {
+        float rotated = 0f;
+        float speed = reloadAngle / reloadTime;
 
-    //     // 360도 회전
-    //     while (rotated < reloadAngle)
-    //     {
-    //         float step = speed * Time.deltaTime;
+        // 360도 회전
+        while (rotated < reloadAngle)
+        {
+            float step = speed * Time.deltaTime;
 
-    //         GunObject.transform.Rotate(step, 0, 0);
+            GunObject.transform.Rotate(step, 0, 0);
 
-    //         rotated += step;
+            rotated += step;
 
-    //         yield return null;
-    //     }
+            yield return null;
+        }
 
-    //     // 원래 회전값으로 복귀
-    //     GunObject.transform.localRotation = startRot;
-    // }
+        // 원래 회전값으로 복귀
+        GunObject.transform.localRotation = startRot;
+    }
     void Shoot()
     {
         currentammo--;

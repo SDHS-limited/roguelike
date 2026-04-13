@@ -3,11 +3,13 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-   private void Update()
+    [SerializeField] Recoil recoil;
+    private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            StartCoroutine(Shake(0.1f, 0.1f));
+            if (!recoil.CanFire) return;
+            StartCoroutine(Shake(0.15f, 0.15f));
         }
     }
     public IEnumerator Shake(float duration, float magnitude)
