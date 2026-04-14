@@ -27,6 +27,7 @@ public class ExperimentManager : MonoBehaviour
     [Header("Effect")]
     [SerializeField] Effect effect;
     [SerializeField] Fever_Slider fever_Slider;
+    [SerializeField] HP_Slider hp;
 
     private List<Experiment> currentOptions = new List<Experiment>();
     [SerializeField] SeleteCardAnim SeleteCardAnim;
@@ -93,7 +94,7 @@ public class ExperimentManager : MonoBehaviour
         switch (data.experimentID)
         {
             case 1:
-                bullet.Damage += 10;
+                bullet.Damage += 5;
                 fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 5f, Time.deltaTime * 10f);
                 ShowThreeRandomExperiments();
 
@@ -135,7 +136,7 @@ public class ExperimentManager : MonoBehaviour
                 isSelete = false;
                 break;
             case 5:
-                fever_Slider.currentFever += 5;
+                
                 ShowThreeRandomExperiments();
 
                 isSelete = true;
@@ -144,6 +145,7 @@ public class ExperimentManager : MonoBehaviour
                 break;
             case 6:
                 // 체력 20 추가, 휴우증 1개 추가
+                hp.curHP += 20;
                 fever_Slider.currentFever += 5;
                 ShowThreeRandomExperiments();
 
@@ -154,6 +156,16 @@ public class ExperimentManager : MonoBehaviour
             case 7:
                 //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
                 fever_Slider.currentFever += 5;
+                ShowThreeRandomExperiments();
+
+                isSelete = true;
+                yield return new WaitForSeconds(2f);
+                isSelete = false;
+                break;
+            case 8:
+                //공격력이 대폭 상승 하지만 폭주 게이지도 대폭 상승한다.
+                bullet.Damage += 20;
+                fever_Slider.currentFever += 30;
                 ShowThreeRandomExperiments();
 
                 isSelete = true;

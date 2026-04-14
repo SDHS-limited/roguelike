@@ -15,6 +15,7 @@ public class CameraRot : MonoBehaviour
     [SerializeField] float minPitch = -90f; // 아래로 내리는 한계
     [SerializeField] float maxPitch = 90f;  // 위로 올리는 한계
     [SerializeField] bool lockCursor = true;
+    
 
     float pitch = 0f; // 카메라 상하 회전(음수 = 아래, 양수 = 위)
     float yaw = 0f;   // 플레이어 좌우 회전

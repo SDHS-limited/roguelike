@@ -14,5 +14,5 @@ AssetOrigin:
   productId: 182354
   packageName: Dungeon Generator 3D
   packageVersion: 1.01
-  assetPath: Assets/Dungeon Generator 3D/Scripts/Data/GenerationSettings.cs
+  assetPath: Assets/Art/Map/Scripts/Data/GenerationSettings.cs
   uploadId: 423420
