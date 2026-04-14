@@ -37,7 +37,7 @@ public class Gun : MonoBehaviour
         ammo.text = ""+currentammo;
         
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             if(currentammo <= 0) return;
             if (!recoil.CanFire) return;
