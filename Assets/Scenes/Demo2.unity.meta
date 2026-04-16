@@ -1,14 +1,7 @@
 fileFormatVersion: 2
-guid: 03df4a32d33228d47aa2ef108f043c3d
+guid: f7213d62150b48f4198c1a24eefa756a
 DefaultImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 182354
-  packageName: Dungeon Generator 3D
-  packageVersion: 1.01
-  assetPath: Assets/Dungeon Generator 3D/Demo/Scene/Demo.unity
-  uploadId: 423420
