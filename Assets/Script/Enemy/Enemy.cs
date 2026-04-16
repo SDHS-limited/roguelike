@@ -13,6 +13,7 @@
     {
         [SerializeField] Animator anim;
         [SerializeField] Demon currentState;
+        [SerializeField] DamageText damageText;
         //[SerializeField] ParticleSystem bloodEffect;
 
         [Header("Gizmos")]
@@ -123,7 +124,8 @@
         {
             if (collision.gameObject.CompareTag("Bullet"))
             {
-            // bloodEffect.Play();        
+                // bloodEffect.Play();
+                damageText.SetDamage(20);
             }
         }
     }
