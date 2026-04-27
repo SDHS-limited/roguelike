@@ -2632,7 +2632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54667f05b167ac2469ac36c996795236, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
-  recoil: {fileID: 0}
+  recoil: {fileID: 2068030066}
 --- !u!114 &1057645667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5001,9 +5001,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db0baf128c6b15b4d907d563a70afbc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Recoil
-  recoilX: 0
-  snappiness: 10
-  returnSpeed: 5
+  recoilX: -79
+  snappiness: 8
+  returnSpeed: 10
   threshold: 0.5
   isRecoil: 0
 --- !u!1 &2134279476
