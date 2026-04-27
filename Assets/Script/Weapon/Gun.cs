@@ -10,9 +10,6 @@ public class Gun : MonoBehaviour
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
 
-    [SerializeField] AudioSource audioSource;
-    [SerializeField] AudioClip fire;
-
     [Header("Gun")]
     [SerializeField] Transform GunObject;   // 회전시킬 총 오브젝트
     [SerializeField] float reloadAngle = 360f; // 총이 회전할 각도

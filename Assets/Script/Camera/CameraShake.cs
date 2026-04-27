@@ -9,7 +9,7 @@ public class CameraShake : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if (!recoil.CanFire) return;
-            StartCoroutine(Shake(0.15f, 0.15f));
+            StartCoroutine(Shake(0.1f, 0.1f));
         }
     }
     public IEnumerator Shake(float duration, float magnitude)
