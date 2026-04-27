@@ -36,6 +36,7 @@ public class ExperimentManager : MonoBehaviour
     void Start()
     {
         ShowThreeRandomExperiments();
+        experiment2.SetActive(false);
         isSelete = false;
     }
     void Awake() {
