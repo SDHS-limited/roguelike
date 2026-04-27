@@ -4,29 +4,37 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-
     [SerializeField] ExperimentManager experimentManager;
     [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
     [SerializeField] public float damage = 10f;
-    [SerializeField] public float speed = 5.0f;  //이동 속도
+    [SerializeField] public float speed = 5.0f;
 
     [Header("Dash")]
-    [SerializeField] float dashDistance = 5f;           //대쉬 거리
-    [SerializeField] float dashCooldown = 1f;           //대쉬 쿨타임
-    [SerializeField] LayerMask dashBlockLayers = ~0;    //대쉬를 막을 레이어
-    [SerializeField] float dashStopOffset = 0.1f;       //장애물과의 간격
-    float dashCooldownTimer;                            //남은 쿨타임
-    bool isDashing = false; 
+    [SerializeField] float dashDistance = 5f;
+    [SerializeField] float dashCooldown = 1f;
+    [SerializeField] LayerMask dashBlockLayers = ~0;
+    [SerializeField] float dashStopOffset = 0.1f;
+    float dashCooldownTimer;
+    bool isDashing = false;
+
+    [Header("Head Bob")]
+    [SerializeField] Transform cameraHolder;
+    [SerializeField] float bobSpeed = 10f;
+    [SerializeField] float bobAmount = 0.05f;
+    [SerializeField] float tiltAmount = 3f;
+
+    float bobTimer;
+    Vector3 camOriginPos;
 
     Rigidbody rb;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        camOriginPos = cameraHolder.localPosition;
     }
-    // Update is called once per frame
+
     void Update()
     {
         move();
@@ -38,32 +46,75 @@ public class Player : MonoBehaviour
             dash();
         }
     }
+
     void move()
     {
-        // if (!experimentManager.isSelete)
-        // {
-            float moveH = Input.GetAxisRaw("Horizontal");
-            float moveV = Input.GetAxisRaw("Vertical");
-            Vector3 move = new Vector3(moveH, 0, moveV);
-            transform.Translate(move * speed * Time.deltaTime);  
-        // }
+        float moveH = Input.GetAxisRaw("Horizontal");
+        float moveV = Input.GetAxisRaw("Vertical");
+        Vector3 move = new Vector3(moveH, 0, moveV);
+
+        transform.Translate(move * speed * Time.deltaTime);
+
+        // HandleHeadBob(move);
     }
+
+//void HandleHeadBob(Vector3 moveInput)
+//{
+//    bool isMoving = moveInput.magnitude > 0.1f && !isDashing;
+
+//    if (isMoving)
+//    {
+//        bobTimer += Time.deltaTime * bobSpeed;
+
+//        float intensity = moveInput.magnitude;
+
+//        // 🔥 좌우 중심
+//        float bobX = Mathf.Sin(bobTimer) * bobAmount * 1.5f;
+//        bobX = Mathf.Sign(bobX) * Mathf.Pow(Mathf.Abs(bobX), 0.5f);
+
+//        // 🔥 위아래 최소화
+//        float bobY = Mathf.Sin(bobTimer * 2) * bobAmount * 0.3f;
+
+//        // 🔥 기울기
+//        float tilt = Mathf.Sin(bobTimer) * 4f;
+
+//        cameraHolder.localPosition = camOriginPos + new Vector3(bobX * intensity, bobY * intensity, 0);
+//        cameraHolder.localRotation = Quaternion.Euler(0, 0, tilt * intensity);
+//    }
+//    else
+//    {
+//        bobTimer = 0;
+
+//        cameraHolder.localPosition = Vector3.Lerp(
+//            cameraHolder.localPosition,
+//            camOriginPos,
+//            Time.deltaTime * 6f
+//        );
+
+//        cameraHolder.localRotation = Quaternion.Lerp(
+//            cameraHolder.localRotation,
+//            Quaternion.identity,
+//            Time.deltaTime * 6f
+//        );
+//    }
+//}
+
     void dash()
     {
         if (isDashing) return;
+        if (dashCooldownTimer > 0f) return;
 
-        if (dashCooldownTimer > 0f)
-            return;
-
-        //캐릭터가 보는 방향으로만 대쉬
         Vector3 dir = transform.forward;
         dir.y = 0f;
-        if (dir.sqrMagnitude < 0.01f) dir = Vector3.forward;
-        else dir.Normalize();
 
-        //앞에 Collider가 있으면 그 앞까지만 이동
+        if (dir.sqrMagnitude < 0.01f)
+            dir = Vector3.forward;
+        else
+            dir.Normalize();
+
         float actualDistance = dashDistance;
-        float rayStartOffset = 0.2f; //자기 자신 콜라이더에 맞지 않도록 살짝 앞에서 시작
+
+        float rayStartOffset = 0.2f;
         Vector3 rayOrigin = transform.position + dir * rayStartOffset;
         float rayLength = Mathf.Max(0.01f, dashDistance - rayStartOffset);
 
@@ -80,26 +131,31 @@ public class Player : MonoBehaviour
     {
         isDashing = true;
 
-        float dashDuration = 0.2f; 
+        float dashDuration = 0.2f;
         float elapsed = 0f;
 
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + dir * distance;
 
+        // 👉 대쉬 시작 시 카메라 살짝 눌림
+        cameraHolder.localPosition += Vector3.down * 0.1f;
+
         while (elapsed < dashDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / dashDuration;
-
-            // 부드러운 가속/감속 느낌
             t = Mathf.SmoothStep(0f, 1f, t);
 
             transform.position = Vector3.Lerp(startPos, targetPos, t);
             yield return null;
-    }
+        }
 
-    transform.position = targetPos;
-    isDashing = false;
+        transform.position = targetPos;
+
+        // 👉 카메라 원위치 복구
+        cameraHolder.localPosition = camOriginPos;
+
+        isDashing = false;
     }
 
     void OnCollisionEnter(Collision collision)

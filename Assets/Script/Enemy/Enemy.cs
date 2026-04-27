@@ -13,6 +13,7 @@
     {
         [SerializeField] Animator anim;
         [SerializeField] Demon currentState;
+        [SerializeField] DamageText damageText;
         //[SerializeField] ParticleSystem bloodEffect;
 
         [Header("Gizmos")]
@@ -32,10 +33,10 @@
         {
             nav = GetComponent<NavMeshAgent>();
 
-            nav.speed = 5f;
-            nav.acceleration = 7f;
-            nav.angularSpeed = 720f;
-            nav.stoppingDistance = 1.2f;
+            nav.speed = 7f;
+            nav.acceleration = 10f;
+            nav.angularSpeed = 800f;
+            nav.stoppingDistance = 2f;
 
             //bloodEffect.Stop();
             RegisterToMaps();
@@ -123,7 +124,8 @@
         {
             if (collision.gameObject.CompareTag("Bullet"))
             {
-            // bloodEffect.Play();        
+                // bloodEffect.Play();
+                damageText.SetDamage(20);
             }
         }
     }
