@@ -91,7 +91,7 @@ public class CameraRot : MonoBehaviour
         );
 
         // 카메라는 상하(Pitch), 몸통은 좌우(Yaw)
-        transform.localEulerAngles   = new Vector3(currentRotation.x, 0f, 0f);
+        // transform.localEulerAngles   = new Vector3(currentRotation.x, 0f, 0f);
         playerBody.eulerAngles       = new Vector3(0f, currentRotation.y, 0f);
 
         // 팔도 카메라와 같이 회전시키려면 아래 주석 해제
