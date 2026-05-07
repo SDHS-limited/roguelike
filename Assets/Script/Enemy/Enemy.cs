@@ -119,13 +119,15 @@
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, smallrange);
         }
+            
 
         void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.CompareTag("Bullet"))
             {
+                print("f");
                 // bloodEffect.Play();
                 damageText.SetDamage(20);
             }
-        }
+    }
     }

@@ -28,6 +28,17 @@ public class HP_Slider : MonoBehaviour
             UpdateHPUI();
         }
     }
+    public void TakeDamage(float damage)
+    {
+        curHP -= damage;
+        curHP = Mathf.Clamp(curHP, 0, maxHp); // 0~최대치 사이로 제한
+        UpdateHPUI();
+
+        if (curHP <= 0)
+        {
+            Debug.Log("기절 또는 사망"); 
+        }
+    }
 
     // UI를 업데이트하는 별도의 함수를 만드는 것이 관리하기 좋습니다.
     void UpdateHPUI()
