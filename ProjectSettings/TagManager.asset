@@ -10,6 +10,8 @@ TagManager:
   - Room
   - Bullet
   - Enemy
+  - FxTemporaire
+  - suicide
   layers:
   - Default
   - TransparentFX
