@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [SerializeField] ExperimentManager experimentManager;
     [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
+    [SerializeField] GameObject suicide;
     [SerializeField] public float damage = 10f;
     [SerializeField] public float speed = 5.0f;
 
@@ -161,14 +162,13 @@ public class Player : MonoBehaviour
     {
         if (hit.gameObject.CompareTag("Enemy"))
         {
-            print("s");
             hp.TakeDamage(1);
 
         }
         if (hit.gameObject.CompareTag("suicide"))
         {
             //폭발 파티클 추가
-            Destroy(gameObject);
+            Destroy(suicide);
             hp.TakeDamage(10);
         }
     }
