@@ -157,14 +157,19 @@ public class Player : MonoBehaviour
 
         isDashing = false;
     }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Enemy"))
+        {
+            print("s");
+            hp.TakeDamage(1);
 
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Enemy"))
-    //    {
-    //        print("s");
-    //        hp.curHP -= damage;
- 
-    //    }
-    //}
+        }
+        if (hit.gameObject.CompareTag("suicide"))
+        {
+            //폭발 파티클 추가
+            Destroy(gameObject);
+            hp.TakeDamage(10);
+        }
+    }
 }
