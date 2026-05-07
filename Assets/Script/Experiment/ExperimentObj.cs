@@ -7,6 +7,7 @@ public class ExperimentObj : MonoBehaviour
     [SerializeField] GameObject experiment; // 실험창
     [SerializeField] ExperimentManager experimentManager;
     // [SerializeField] Animator anim;
+    [SerializeField] bool isvisit = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -26,9 +27,14 @@ public class ExperimentObj : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             // anim.SetBool("isopen", true);
         }
+        if (hit.Length > 1) 
+        {
+            isvisit = false;
+        }
         if (experimentManager.isSelete)
         {
             experiment.gameObject.SetActive(false);
+            isvisit = true;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Confined;
         }

@@ -23,6 +23,7 @@ public class ExperimentManager : MonoBehaviour
     [Header("ID")]
     [SerializeField] Bullet bullet;
     [SerializeField] Player player;
+    [SerializeField] Move move;
     
     [Header("Effect")]
     [SerializeField] Effect effect;
@@ -106,7 +107,7 @@ public class ExperimentManager : MonoBehaviour
             case 2:
                 yield return new WaitForSeconds(0.3f);
 
-                player.speed -= 2f;
+                move.walkSpeed -= 2f;
                 player.damage -= 4f;
                 fever_Slider.currentFever = Mathf.MoveTowards(fever_Slider.currentFever, 10f, Time.deltaTime * 10f);
                 StartCoroutine(effect.Damage()); //이펙트
