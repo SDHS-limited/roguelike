@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        move();
+        // move();
 
         dashCooldownTimer -= Time.deltaTime;
 

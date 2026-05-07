@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Gun : MonoBehaviour
@@ -26,11 +27,12 @@ public class Gun : MonoBehaviour
     {
         startRot = GunObject.transform.localRotation;
         // startRot = arm.transform.localRotation;
-        reload_Slider.gameObject.SetActive(false);
+        // reload_Slider.gameObject.SetActive(false);
     }
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name == "Map_Build_test") return;
         ammo.text = ""+currentammo;
         
 
@@ -48,7 +50,7 @@ public class Gun : MonoBehaviour
         {
             if (!recoil.CanFire) return;
             currentammo = 7;
-            StartCoroutine(reload_Slider.FillRoutine());
+            // StartCoroutine(reload_Slider.Reload());
             StartCoroutine(ReloadAnim());
         }
 
@@ -85,3 +87,5 @@ public class Gun : MonoBehaviour
         recoil.Fire();
     }   
 }
+
+
