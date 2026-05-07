@@ -27,7 +27,7 @@ public class Gun : MonoBehaviour
     {
         startRot = GunObject.transform.localRotation;
         // startRot = arm.transform.localRotation;
-        // reload_Slider.gameObject.SetActive(false);
+        reload_Slider.gameObject.SetActive(true);
     }
 
     void Update()
@@ -50,7 +50,7 @@ public class Gun : MonoBehaviour
         {
             if (!recoil.CanFire) return;
             currentammo = 7;
-            // StartCoroutine(reload_Slider.Reload());
+            StartCoroutine(reload_Slider.FillRoutine());
             StartCoroutine(ReloadAnim());
         }
 

@@ -1,16 +1,15 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(CharacterController))]
 public class Move : MonoBehaviour
 {
-[Header("Movement")]
-    public float walkSpeed = 4.5f;         // L4D2 기본 이동속도
+    [Header("Movement")]
+    public float walkSpeed = 4.5f;
     public float runSpeed = 7.5f;
     public float crouchSpeed = 2.5f;
-    public float acceleration = 10f;       // 가속도
-    public float deceleration = 12f;       // 감속도 (더 빠르게)
-    public float airControl = 0.3f;        // 공중 제어력
+    public float acceleration = 10f;
+    public float deceleration = 12f;
+    public float airControl = 0.3f;
 
     [Header("Jump & Gravity")]
     public float jumpHeight = 1.2f;
@@ -27,11 +26,9 @@ public class Move : MonoBehaviour
     public float bobFrequency = 2.2f;
     public float bobAmplitude = 0.05f;
 
-    // 내부 변수
     private CharacterController controller;
-    private Vector3 velocity;              // 현재 속도 (관성)
-    private Vector3 moveVelocity;          // 수평 이동 속도
-    private float verticalVelocity;        // 수직 속도 (중력/점프)
+    private Vector3 moveVelocity;
+    private float verticalVelocity;
     private bool isGrounded;
     private bool isCrouching;
     private bool isRunning;
@@ -40,18 +37,31 @@ public class Move : MonoBehaviour
     private float targetHeight;
     private float originalCameraY;
 
+    // 추가: 바닥에서 띄울 높이 오프셋 (요청하신 0.17 반영)
+    private readonly float yOffset = 0.4f;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
-        originalCameraY = playerCamera.transform.localPosition.y;
+        
+        // 초기 높이 설정 (standHeight로 시작)
         targetHeight = standHeight;
+        controller.height = standHeight;
+        
+        // 초기 위치 강제 설정
+        transform.position = new Vector3(transform.position.x, yOffset, transform.position.z);
+        
+        originalCameraY = playerCamera.transform.localPosition.y;
+        
+        // 초기 Center 설정
+        UpdateControllerCenter();
     }
 
     void Update()
     {
         CheckGround();
-        // HandleCrouch();
+        HandleCrouch();
         HandleMovement();
         HandleJump();
         ApplyGravity();
@@ -63,12 +73,12 @@ public class Move : MonoBehaviour
 
     void CheckGround()
     {
-        // 발 위치에서 구체 체크
-        Vector3 spherePos = transform.position + Vector3.down * (controller.height / 2 - groundCheckRadius);
+        // 0.17 위치에서 아래로 살짝 내린 지점에서 체크
+        Vector3 spherePos = transform.position + Vector3.up * (yOffset - groundCheckRadius);
         isGrounded = Physics.CheckSphere(spherePos, groundCheckRadius, groundLayer);
 
         if (isGrounded && verticalVelocity < 0)
-            verticalVelocity = -2f; // 바닥에 붙어있게
+            verticalVelocity = -2f; 
     }
 
     void HandleMovement()
@@ -76,20 +86,14 @@ public class Move : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        // 카메라 방향 기준으로 이동 방향 계산
         Vector3 inputDir = transform.right * h + transform.forward * v;
-        if (inputDir.magnitude > 1f)
-            inputDir.Normalize();
+        if (inputDir.magnitude > 1f) inputDir.Normalize();
 
-        // 달리기 판단 (앞으로 이동 + Shift, 앉지 않은 상태)
         isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0.1f && !isCrouching;
 
-        float targetSpeed = isCrouching ? crouchSpeed :
-                           isRunning ? runSpeed : walkSpeed;
-
+        float targetSpeed = isCrouching ? crouchSpeed : isRunning ? runSpeed : walkSpeed;
         Vector3 targetVelocity = inputDir * targetSpeed;
 
-        // 공중 / 지상 제어력 다르게
         float accel = isGrounded ? 
                      (inputDir.magnitude > 0 ? acceleration : deceleration) : 
                      acceleration * airControl;
@@ -101,7 +105,6 @@ public class Move : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            // v² = 2gh  →  v = sqrt(2 * |gravity| * jumpHeight)
             verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
         }
     }
@@ -114,12 +117,11 @@ public class Move : MonoBehaviour
 
     void HandleCrouch()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-            isCrouching = true;
+        if (Input.GetKeyDown(KeyCode.LeftControl)) isCrouching = true;
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            // 머리 위 공간 체크 후 일어서기
-            if (!Physics.SphereCast(transform.position, 0.4f, Vector3.up, out _, standHeight - crouchHeight))
+            // 머리 위 체크
+            if (!Physics.SphereCast(transform.position + Vector3.up * yOffset, 0.4f, Vector3.up, out _, standHeight - crouchHeight))
                 isCrouching = false;
         }
 
@@ -127,38 +129,39 @@ public class Move : MonoBehaviour
 
         // 높이 부드럽게 전환
         controller.height = Mathf.Lerp(controller.height, targetHeight, crouchTransitionSpeed * Time.deltaTime);
-        controller.center = Vector3.up * controller.height / 2;
+        
+        // 중요: 높이가 변할 때마다 Center도 같이 업데이트
+        UpdateControllerCenter();
 
-        // 카메라도 같이 이동
+        // 카메라 이동
         float targetCamY = isCrouching ? originalCameraY - (standHeight - crouchHeight) * 0.5f : originalCameraY;
         Vector3 camPos = playerCamera.transform.localPosition;
         camPos.y = Mathf.Lerp(camPos.y, targetCamY, crouchTransitionSpeed * Time.deltaTime);
         playerCamera.transform.localPosition = camPos;
     }
 
+    // CharacterController의 중심점을 보정하는 함수
+    void UpdateControllerCenter()
+    {
+        // Pivot이 중앙에 있다면: Center.y = (Height / 2) - Offset을 해주어야 
+        // 캐릭터의 Transform 위치가 항상 바닥에서 Offset(0.17)만큼 뜬 상태가 됩니다.
+        controller.center = new Vector3(0, (controller.height / 2f) - yOffset, 0);
+    }
+
     void ApplyHeadBob()
     {
         if (!isGrounded) return;
-
         float speed = moveVelocity.magnitude;
         if (speed > 0.1f)
         {
             bobTimer += Time.deltaTime * bobFrequency * (isRunning ? 1.5f : 1f);
             float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude * (speed / walkSpeed);
-
             Vector3 camPos = playerCamera.transform.localPosition;
             camPos.y += bobOffset;
             playerCamera.transform.localPosition = camPos;
         }
-        else
-        {
-            bobTimer = 0;
-        }
+        else { bobTimer = 0; }
     }
 
-    // 외부에서 읽을 수 있는 프로퍼티
     public bool IsGrounded => isGrounded;
-    public bool IsRunning => isRunning;
-    public bool IsCrouching => isCrouching;
-    public Vector3 MoveVelocity => moveVelocity;
 }
