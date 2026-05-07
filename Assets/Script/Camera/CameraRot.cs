@@ -52,7 +52,6 @@ public class CameraRot : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            return;
         }
 
         // ESC 커서 해제
@@ -70,7 +69,7 @@ public class CameraRot : MonoBehaviour
         }
 
         // ✅ 커서가 잠겨있을 때만 카메라 회전
-        if (Cursor.lockState != CursorLockMode.Locked) return;
+        //if (Cursor.lockState != CursorLockMode.Locked) return;
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;

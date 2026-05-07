@@ -158,13 +158,13 @@ public class Player : MonoBehaviour
         isDashing = false;
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            hp.HPslider.value = Mathf.Lerp(hp.curHP, hp.maxHp, hp.HPslider.value - Time.deltaTime);
-            hp.curHP -= damage;
-            StartCoroutine(effect.Damage());
-        }
-    }
+    //void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.CompareTag("Enemy"))
+    //    {
+    //        print("s");
+    //        hp.curHP -= damage;
+ 
+    //    }
+    //}
 }

@@ -26,6 +26,7 @@ public class Move : MonoBehaviour
     public float bobFrequency = 2.2f;
     public float bobAmplitude = 0.05f;
 
+    public HP_Slider hp;
     private CharacterController controller;
     private Vector3 moveVelocity;
     private float verticalVelocity;
@@ -33,7 +34,7 @@ public class Move : MonoBehaviour
     private bool isCrouching;
     private bool isRunning;
     private float bobTimer;
-    private Camera playerCamera;
+    [SerializeField] Camera playerCamera;
     private float targetHeight;
     private float originalCameraY;
 
@@ -103,7 +104,7 @@ public class Move : MonoBehaviour
 
     void HandleJump()
     {
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
         }
@@ -121,7 +122,7 @@ public class Move : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             // 머리 위 체크
-            if (!Physics.SphereCast(transform.position + Vector3.up * yOffset, 0.4f, Vector3.up, out _, standHeight - crouchHeight))
+            if (!Physics.SphereCast(transform.position + Vector3.up * yOffset, 0.4f, Vector3.up, out _, standHeight - crouchHeight))    
                 isCrouching = false;
         }
 
@@ -164,4 +165,13 @@ public class Move : MonoBehaviour
     }
 
     public bool IsGrounded => isGrounded;
+   
+
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.CompareTag("Enemy"))
+    //    {
+    //        hp.curHP -= 10 ;
+    //    }
+    //}
 }
