@@ -13,22 +13,11 @@ public class Player : MonoBehaviour
 
     [Header("Dash")]
     [SerializeField] float dashDistance = 5f;
-    [SerializeField] float dashCooldownW = 1f;
-    [SerializeField] float dashCooldownA = 1f;
-    [SerializeField] float dashCooldownS = 1f;
-    [SerializeField] float dashCooldownD = 1f;
+    [SerializeField] float dashCooldown = 1f;
     [SerializeField] LayerMask dashBlockLayers = ~0;
     [SerializeField] float dashStopOffset = 0.1f;
-    [SerializeField] float dashDoubleTapWindow = 0.25f;
-    float dashCooldownTimerW;
-    float dashCooldownTimerA;
-    float dashCooldownTimerS;
-    float dashCooldownTimerD;
+    float dashCooldownTimer;
     bool isDashing = false;
-    float lastTapW = -1f;
-    float lastTapA = -1f;
-    float lastTapS = -1f;
-    float lastTapD = -1f;
 
     [Header("Head Bob")]
     [SerializeField] Transform cameraHolder;
@@ -51,45 +40,11 @@ public class Player : MonoBehaviour
     {
         // move();
 
-        dashCooldownTimerW -= Time.deltaTime;
-        dashCooldownTimerA -= Time.deltaTime;
-        dashCooldownTimerS -= Time.deltaTime;
-        dashCooldownTimerD -= Time.deltaTime;
+        dashCooldownTimer -= Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetMouseButtonDown(1))
         {
-            if (Time.time - lastTapW <= dashDoubleTapWindow)
-            {
-                dash(transform.forward, KeyCode.W);
-            }
-            lastTapW = Time.time;
-        }
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            if (Time.time - lastTapA <= dashDoubleTapWindow)
-            {
-                dash(-transform.right, KeyCode.A);
-            }
-            lastTapA = Time.time;
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            if (Time.time - lastTapS <= dashDoubleTapWindow)
-            {
-                dash(-transform.forward, KeyCode.S);
-            }
-            lastTapS = Time.time;
-        }
-
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            if (Time.time - lastTapD <= dashDoubleTapWindow)
-            {
-                dash(transform.right, KeyCode.D);
-            }
-            lastTapD = Time.time;
+            dash();
         }
     }
 
@@ -145,19 +100,16 @@ public class Player : MonoBehaviour
     //    }
     //}
 
-    void dash(Vector3 inputDir, KeyCode dashKey)
+    void dash()
     {
         if (isDashing) return;
-        if (dashKey == KeyCode.W && dashCooldownTimerW > 0f) return;
-        if (dashKey == KeyCode.A && dashCooldownTimerA > 0f) return;
-        if (dashKey == KeyCode.S && dashCooldownTimerS > 0f) return;
-        if (dashKey == KeyCode.D && dashCooldownTimerD > 0f) return;
+        if (dashCooldownTimer > 0f) return;
 
-        Vector3 dir = inputDir;
+        Vector3 dir = transform.forward;
         dir.y = 0f;
 
         if (dir.sqrMagnitude < 0.01f)
-            dir = transform.forward;
+            dir = Vector3.forward;
         else
             dir.Normalize();
 
@@ -173,10 +125,7 @@ public class Player : MonoBehaviour
         }
 
         StartCoroutine(DashCoroutine(dir, actualDistance));
-        if (dashKey == KeyCode.W) dashCooldownTimerW = dashCooldownW;
-        else if (dashKey == KeyCode.A) dashCooldownTimerA = dashCooldownA;
-        else if (dashKey == KeyCode.S) dashCooldownTimerS = dashCooldownS;
-        else if (dashKey == KeyCode.D) dashCooldownTimerD = dashCooldownD;
+        dashCooldownTimer = dashCooldown;
     }
 
     IEnumerator DashCoroutine(Vector3 dir, float distance)
@@ -185,24 +134,48 @@ public class Player : MonoBehaviour
 
         float dashDuration = 0.2f;
         float elapsed = 0f;
-
-        Vector3 startPos = transform.position;
-        Vector3 targetPos = startPos + dir * distance;
+        float movedDistance = 0f;
+        float dashSpeed = distance / dashDuration;
+        Vector3 lastValidDir = dir;
 
         // 👉 대쉬 시작 시 카메라 살짝 눌림
         cameraHolder.localPosition += Vector3.down * 0.1f;
 
         while (elapsed < dashDuration)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / dashDuration;
-            t = Mathf.SmoothStep(0f, 1f, t);
+            float dt = Time.deltaTime;
+            elapsed += dt;
 
-            transform.position = Vector3.Lerp(startPos, targetPos, t);
+            // 대쉬 중에도 현재 바라보는 방향을 계속 추적
+            Vector3 currentDir = transform.forward;
+            currentDir.y = 0f;
+            if (currentDir.sqrMagnitude < 0.01f)
+                currentDir = lastValidDir;
+            else
+            {
+                currentDir.Normalize();
+                lastValidDir = currentDir;
+            }
+
+            float remainingDistance = distance - movedDistance;
+            if (remainingDistance <= 0f) break;
+
+            float stepDistance = Mathf.Min(dashSpeed * dt, remainingDistance);
+            Vector3 rayOrigin = transform.position + currentDir * 0.2f;
+
+            // 회전 후 진행 방향에도 벽 관통이 나지 않도록 스텝 단위로 검사
+            if (Physics.Raycast(rayOrigin, currentDir, out RaycastHit hit, stepDistance + 0.2f, dashBlockLayers))
+            {
+                float allowedDistance = Mathf.Max(0f, hit.distance - dashStopOffset);
+                stepDistance = Mathf.Min(stepDistance, allowedDistance);
+            }
+
+            if (stepDistance <= 0f) break;
+
+            transform.position += currentDir * stepDistance;
+            movedDistance += stepDistance;
             yield return null;
         }
-
-        transform.position = targetPos;
 
         // 👉 카메라 원위치 복구
         cameraHolder.localPosition = camOriginPos;
