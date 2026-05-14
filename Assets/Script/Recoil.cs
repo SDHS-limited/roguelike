@@ -40,6 +40,14 @@ public class Recoil : MonoBehaviour
         }
     }
 
+    [Header("Instability")]
+    public float feverRatio = 0f;
+
+    public void ApplyTwitch(float intensity)
+    {
+        targetRotation += new Vector3(-intensity, Random.Range(-intensity, intensity), 0);
+    }
+
     void Update()
     {
         // 1. 목표 회전값을 항상 기본 위치(-90, 0, 0)로 부드럽게 되돌림
@@ -54,7 +62,8 @@ public class Recoil : MonoBehaviour
 
     public void Fire()
     {
-        // 총을 쏠 때 목표 회전값에 반동 추가
-        targetRotation += new Vector3(recoilX, 0, 0);
+        // 총을 쏠 때 목표 회전값에 반동 추가 (피버 수치에 따라 반동 증가)
+        float currentRecoil = recoilX * (1f + feverRatio);
+        targetRotation += new Vector3(currentRecoil, Random.Range(-currentRecoil * 0.1f, currentRecoil * 0.1f), 0);
     }
 }

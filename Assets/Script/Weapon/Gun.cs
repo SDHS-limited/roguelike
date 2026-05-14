@@ -30,15 +30,49 @@ public class Gun : MonoBehaviour
         reload_Slider.gameObject.SetActive(true);
     }
 
+    private bool isJamming = false;
+
+    public void SetJamming(bool value)
+    {
+        isJamming = value;
+    }
+
+    public void ForceFire()
+    {
+        if (currentammo > 0)
+        {
+            Shoot();
+        }
+    }
+
+    private bool isBerserk = false;
+    private float berserkFireTimer = 0f;
+
+    public void SetBerserk(bool value)
+    {
+        isBerserk = value;
+    }
+
     void Update()
     {
         if (SceneManager.GetActiveScene().name == "Map_Build_test") return;
         ammo.text = ""+currentammo;
         
+        if (isBerserk)
+        {
+            currentammo = 7; // 무한 탄약
+            berserkFireTimer -= Time.deltaTime;
+            if (berserkFireTimer <= 0)
+            {
+                Shoot();
+                berserkFireTimer = 0.1f; // 폭주 시 연사 속도
+            }
+            return;
+        }
 
         if (Input.GetMouseButton(0))
         {
-            if(currentammo <= 0) return;
+            if(currentammo <= 0 || isJamming) return;
             if (!recoil.CanFire) return;
 
             Shoot();
@@ -48,7 +82,7 @@ public class Gun : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
         {
-            if (!recoil.CanFire) return;
+            if (!recoil.CanFire || isJamming) return;
             currentammo = 7;
             StartCoroutine(reload_Slider.FillRoutine());
             StartCoroutine(ReloadAnim());

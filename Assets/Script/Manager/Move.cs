@@ -165,6 +165,11 @@ public class Move : MonoBehaviour
     }
 
     public bool IsGrounded => isGrounded;
+
+    public void ApplyStagger(Vector3 force)
+    {
+        moveVelocity += force;
+    }
    
 
     //private void OnCollisionEnter(Collision collision)
