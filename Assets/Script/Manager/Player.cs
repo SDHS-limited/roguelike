@@ -212,9 +212,11 @@ public class Player : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (hp != null) hp.TakeDamage(amount);
-        if (experimentManager != null && experimentManager.GetComponentInChildren<Fever_Slider>() != null)
+        
+        Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
+        if (fever != null)
         {
-            experimentManager.GetComponentInChildren<Fever_Slider>().AddFever(amount * 0.5f);
+            fever.AddFever(amount * 0.5f);
         }
     }
 
