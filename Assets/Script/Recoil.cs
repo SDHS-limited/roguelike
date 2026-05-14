@@ -2,54 +2,68 @@ using UnityEngine;
 
 public class Recoil : MonoBehaviour
 {
-[Header("Recoil Settings")]
+    [Header("Recoil Settings")]
     [Tooltip("총을 쏠 때 올라가는 x축 회전값")]
-    public float recoilX = -8.1f; 
-    
+    public float recoilX = -8.1f;
+
     [Tooltip("반동이 적용되는 속도")]
-    public float snappiness = 10f; 
-    
+    public float snappiness = 10f;
+
     [Tooltip("원래 위치로 돌아오는 속도")]
     public float returnSpeed = 5f;
 
     [Header("Fire Condition")]
     [Tooltip("원래 위치로 돌아왔다고 판단할 오차 각도 (값이 작을수록 완전히 멈춰야 발사됨)")]
     public float threshold = 0.5f;
-    public bool isRecoil = false; // 반동 여부
+    public bool isRecoil = false;
+
+    // 기본 rotation 값
+    private readonly Vector3 baseRotation = new Vector3(-90f, 0f, 0f);
 
     private Vector3 currentRotation;
     private Vector3 targetRotation;
 
-    // 외부 스크립트(예: Weapon.cs)에서도 발사 가능 여부를 알 수 있도록 만든 프로퍼티
-    public bool CanFire 
+    void Start()
     {
-        get 
-        { 
-            // 현재 X축 회전값의 절댓값이 threshold(0.5도) 이하인지 확인
-            return Mathf.Abs(currentRotation.x) <= threshold; 
+        // 시작 시 기본 rotation으로 초기화
+        currentRotation = baseRotation;
+        targetRotation = baseRotation;
+        transform.localEulerAngles = baseRotation;
+    }
+
+    // 현재 회전이 기본값(baseRotation) 기준으로 threshold 이내인지 확인
+    public bool CanFire
+    {
+        get
+        {
+            return Mathf.Abs(currentRotation.x - baseRotation.x) <= threshold;
         }
+    }
+
+    [Header("Instability")]
+    public float feverRatio = 0f;
+
+    public void ApplyTwitch(float intensity)
+    {
+        targetRotation += new Vector3(-intensity, Random.Range(-intensity, intensity), 0);
     }
 
     void Update()
     {
-        // 1. 목표 회전값을 항상 원래 위치(0, 0, 0)로 부드럽게 되돌림
-        targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, returnSpeed * Time.deltaTime);
+        // 1. 목표 회전값을 항상 기본 위치(-90, 0, 0)로 부드럽게 되돌림
+        targetRotation = Vector3.Lerp(targetRotation, baseRotation, returnSpeed * Time.deltaTime);
 
         // 2. 현재 회전값을 목표 회전값으로 부드럽게 이동
         currentRotation = Vector3.Slerp(currentRotation, targetRotation, snappiness * Time.deltaTime);
 
         // 3. 실제 오브젝트의 로컬 회전값에 적용
         transform.localEulerAngles = currentRotation;
-
     }
 
     public void Fire()
     {
-
-        // 총을 쏠 때 목표 회전값에 반동 추가
-        targetRotation += new Vector3(recoilX, 0, 0);
-        
-        // 여기에 총알 발사, 이펙트 생성, 사운드 재생 등의 로직을 추가하시면 됩니다.
-        Debug.Log("발사 완료! (반동 시작)");
+        // 총을 쏠 때 목표 회전값에 반동 추가 (피버 수치에 따라 반동 증가)
+        float currentRecoil = recoilX * (1f + feverRatio);
+        targetRotation += new Vector3(currentRecoil, Random.Range(-currentRecoil * 0.1f, currentRecoil * 0.1f), 0);
     }
 }

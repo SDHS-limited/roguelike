@@ -1,6 +1,5 @@
-using System;
 using System.Collections;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,21 +7,22 @@ public class Reload_Slider : MonoBehaviour
 {
     [SerializeField] Image image;
     [SerializeField] float duration = 1.5f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public IEnumerator FillRoutine()
     {
-        image.gameObject.SetActive(true);
         float time = 0;
         
+
         while (time < duration)
         {
             time += Time.deltaTime;
-            image.fillAmount = Mathf.Lerp(0, 1, time / duration);
+            float angle = Mathf.Lerp(0, 360, time / duration);
+            image.rectTransform.localRotation = Quaternion.Euler(0, 0, -angle);
             yield return null;
         }
 
-        image.fillAmount = 0; // 마지막 보정
-        image.gameObject.SetActive(false);
+        image.rectTransform.localRotation = Quaternion.identity; // 회전 초기화
     }
+
 }
+

@@ -17,9 +17,9 @@ public class RestManager : MonoBehaviour
     {
         
     }
-    void OnCollisionEnter(Collision collision)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (hit.gameObject.CompareTag("Player"))
         {
             hp.curHP = 150;
             StartCoroutine(effect.Heal());

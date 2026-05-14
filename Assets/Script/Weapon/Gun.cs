@@ -3,15 +3,13 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Gun : MonoBehaviour
 {
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
-
-    [SerializeField] AudioSource audioSource;
-    [SerializeField] AudioClip fire;
 
     [Header("Gun")]
     [SerializeField] Transform GunObject;   // 회전시킬 총 오브젝트
@@ -29,17 +27,52 @@ public class Gun : MonoBehaviour
     {
         startRot = GunObject.transform.localRotation;
         // startRot = arm.transform.localRotation;
-        reload_Slider.gameObject.SetActive(false);
+        reload_Slider.gameObject.SetActive(true);
+    }
+
+    private bool isJamming = false;
+
+    public void SetJamming(bool value)
+    {
+        isJamming = value;
+    }
+
+    public void ForceFire()
+    {
+        if (currentammo > 0)
+        {
+            Shoot();
+        }
+    }
+
+    private bool isBerserk = false;
+    private float berserkFireTimer = 0f;
+
+    public void SetBerserk(bool value)
+    {
+        isBerserk = value;
     }
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name == "Map_Build_test") return;
         ammo.text = ""+currentammo;
         
+        if (isBerserk)
+        {
+            currentammo = 7; // 무한 탄약
+            berserkFireTimer -= Time.deltaTime;
+            if (berserkFireTimer <= 0)
+            {
+                Shoot();
+                berserkFireTimer = 0.1f; // 폭주 시 연사 속도
+            }
+            return;
+        }
 
         if (Input.GetMouseButton(0))
         {
-            if(currentammo <= 0) return;
+            if(currentammo <= 0 || isJamming) return;
             if (!recoil.CanFire) return;
 
             Shoot();
@@ -49,7 +82,7 @@ public class Gun : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
         {
-            if (!recoil.CanFire) return;
+            if (!recoil.CanFire || isJamming) return;
             currentammo = 7;
             StartCoroutine(reload_Slider.FillRoutine());
             StartCoroutine(ReloadAnim());
@@ -88,3 +121,5 @@ public class Gun : MonoBehaviour
         recoil.Fire();
     }   
 }
+
+

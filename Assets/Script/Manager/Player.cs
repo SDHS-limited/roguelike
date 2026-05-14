@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [SerializeField] ExperimentManager experimentManager;
     [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
+    [SerializeField] GameObject suicide;
     [SerializeField] public float damage = 10f;
     [SerializeField] public float speed = 5.0f;
 
@@ -37,7 +38,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        move();
+        // move();
 
         dashCooldownTimer -= Time.deltaTime;
 
@@ -157,14 +158,22 @@ public class Player : MonoBehaviour
 
         isDashing = false;
     }
-
-    void OnCollisionEnter(Collision collision)
+    public void TakeDamage(float amount)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (hp != null) hp.TakeDamage(amount);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Enemy"))
         {
-            hp.HPslider.value = Mathf.Lerp(hp.curHP, hp.maxHp, hp.HPslider.value - Time.deltaTime);
-            hp.curHP -= damage;
-            StartCoroutine(effect.Damage());
+            TakeDamage(1);
+        }
+        if (hit.gameObject.CompareTag("suicide"))
+        {
+            //폭발 파티클 추가
+            Destroy(suicide);
+            TakeDamage(10);
         }
     }
 }

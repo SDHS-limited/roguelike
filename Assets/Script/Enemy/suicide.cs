@@ -5,7 +5,9 @@ using UnityEngine.AI;
 public class suicide : MonoBehaviour
 {
     [SerializeField] HP_Slider playerHP;
+    [SerializeField] DamageText damageText;
     [SerializeField] float hp = 120;
+
 
     [Header("AI")]
     [SerializeField] NavMeshAgent nav;
@@ -49,17 +51,19 @@ public class suicide : MonoBehaviour
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(this.transform.position, range);    
     }
-    void OnCollisionEnter(Collision collision)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (hit.gameObject.CompareTag("Player"))
         {
             //폭발 파티클 추가
+            print("폭8");
             Destroy(gameObject);
-            playerHP.curHP -= 15;
+            playerHP.TakeDamage(10);
         }
-        if (collision.gameObject.CompareTag("Bullet"))
+        if (hit.gameObject.CompareTag("Bullet"))
         {
             hp -= 20;
+            damageText.SetDamage(20);
         }
     }
 }
