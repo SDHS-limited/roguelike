@@ -212,6 +212,10 @@ public class Player : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (hp != null) hp.TakeDamage(amount);
+        if (experimentManager != null && experimentManager.GetComponentInChildren<Fever_Slider>() != null)
+        {
+            experimentManager.GetComponentInChildren<Fever_Slider>().AddFever(amount * 0.5f);
+        }
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)

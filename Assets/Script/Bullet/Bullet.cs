@@ -22,13 +22,11 @@ public class Bullet : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy"))
         {
             Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-            Destroy(gameObject);
-           
             if (enemy != null)
             {
-                enemy.hp -= Damage;
+                enemy.SendMessage("TakeDamage", Damage, SendMessageOptions.DontRequireReceiver);
             }
-            
+            Destroy(gameObject);
         }
         else
         {
@@ -36,16 +34,16 @@ public class Bullet : MonoBehaviour
             ContactPoint contact = collision.contacts[0];
 
             // 파티클 생성 (법선 방향으로 회전)
-            GameObject hitt = Instantiate(
-                hitEffectPrefab,
-                contact.point,
-                Quaternion.LookRotation(contact.normal)
-            );
-
-            Destroy(hitt, 1f);
+            if (hitEffectPrefab != null)
+            {
+                GameObject hitt = Instantiate(
+                    hitEffectPrefab,
+                    contact.point,
+                    Quaternion.LookRotation(contact.normal)
+                );
+                Destroy(hitt, 1f);
+            }
+            Destroy(gameObject);
         }
-        
-        // 여기서 데미지 처리 가능
-        Destroy(gameObject);
     }
 }

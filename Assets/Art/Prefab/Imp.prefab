@@ -195,7 +195,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DamageText
   moveSpeed: 2
   lifeTime: 1
-  text: {fileID: 116420500791563948}
 --- !u!114 &116420500791563948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1838,7 +1837,11 @@ MonoBehaviour:
     m_Bits: 8
   nav: {fileID: 647045566159172786}
   target: {fileID: 0}
-  hp: 80
+  hp: 100
+  meshRenderers: []
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.15
+  hitEffectPrefab: {fileID: 0}
 --- !u!95 &8461258793785792816
 Animator:
   serializedVersion: 7

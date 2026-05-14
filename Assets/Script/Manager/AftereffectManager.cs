@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AftereffectManager : MonoBehaviour
 {
@@ -117,33 +118,64 @@ public class AftereffectManager : MonoBehaviour
         StartCoroutine(BerserkRoutine());
     }
 
+    [Header("Berserk Visuals")]
+    [SerializeField] private Image berserkOverlay; // Assign a red/glitchy UI Image
+    [SerializeField] private float berserkDuration = 25f;
+
     private IEnumerator BerserkRoutine()
     {
-        Debug.Log("BERSERK MODE ACTIVATED!");
+        Debug.Log("!!! BERSERK MODE ACTIVATED !!!");
         
-        // 1. 능력치 대폭 강화 (플레이어 데미지 등)
+        // 1. 긍정적 효과: 체력 회복 (시작 시 30% 회복)
+        if (player.GetComponentInChildren<HP_Slider>() != null)
+        {
+            HP_Slider hp = player.GetComponentInChildren<HP_Slider>();
+            hp.curHP = Mathf.Min(hp.maxHp, hp.curHP + (hp.maxHp * 0.3f));
+        }
+        
+        // 2. 능력치 강화 및 무기 설정
         float originalPlayerDamage = player.damage;
-        player.damage *= 2f;
-        
-        // 2. 무한 탄약 및 자동 발사 설정
+        player.damage *= 2.5f; // 공격력 대폭 증가
         gun.SendMessage("SetBerserk", true, SendMessageOptions.DontRequireReceiver);
 
-        float elapsed = 0f;
-        float duration = 10f;
+        // 3. 부정적 효과: 입력 과민 반응 (속도 및 가속도 대폭 증가)
+        float originalWalkSpeed = move.walkSpeed;
+        float originalAccel = move.acceleration;
+        move.walkSpeed *= 1.8f;
+        move.acceleration *= 3.0f; // 제어가 힘들 정도로 가속됨
 
-        while (elapsed < duration)
+        // 4. 시각 왜곡 (오버레이 활성화)
+        if (berserkOverlay != null) berserkOverlay.gameObject.SetActive(true);
+
+        float elapsed = 0f;
+        while (elapsed < berserkDuration)
         {
             elapsed += Time.deltaTime;
             
-            // 시점 강제 흔들림
-            ApplyTwitch(2f);
-            
-            // 체력 조금씩 감소 (폭주의 대가)
-            if (elapsed % 1.0f < Time.deltaTime)
+            // 부정적 효과: 조준 불안정 (심한 경련이 아닌 '진동' 느낌으로 변경)
+            if (recoil != null)
             {
-                // Player.cs에 TakeDamage가 없을 수 있으므로 HP_Slider 등을 직접 참조하는 것이 안전할 수 있음
-                // 하지만 기존 Player.cs를 보면 hp.TakeDamage(1)를 호출하는 부분이 있음.
-                player.SendMessage("TakeDamage", 1, SendMessageOptions.DontRequireReceiver);
+                recoil.SetJitter(Random.Range(1f, 3f));
+                // Twitch는 간헐적으로만 발생 (팔이 하늘로 솟구치는 것 방지)
+                if (elapsed % 0.5f < Time.deltaTime) 
+                {
+                    recoil.ApplyTwitch(Random.Range(1f, 2f));
+                }
+            }
+            
+            // 시각 왜곡 연출 (심장 박동처럼 오버레이 투명도 조절)
+            if (berserkOverlay != null)
+            {
+                float alpha = 0.2f + Mathf.PingPong(Time.time * 2f, 0.3f);
+                Color c = berserkOverlay.color;
+                c.a = alpha;
+                berserkOverlay.color = c;
+            }
+
+            // 폭주의 대가: 체력 지속 감소
+            if (elapsed % 0.5f < Time.deltaTime)
+            {
+                player.TakeDamage(1f);
             }
 
             yield return null;
@@ -151,10 +183,16 @@ public class AftereffectManager : MonoBehaviour
         
         // 원상 복구
         player.damage = originalPlayerDamage;
+        move.walkSpeed = originalWalkSpeed;
+        move.acceleration = originalAccel;
         gun.SendMessage("SetBerserk", false, SendMessageOptions.DontRequireReceiver);
+        if (recoil != null) recoil.isBerserk = false;
+        
+        if (berserkOverlay != null) berserkOverlay.gameObject.SetActive(false);
         
         isBerserk = false;
         feverSlider.ResetFever(0.5f); // 50%로 리셋
+        Debug.Log("Berserk Mode Ended. Fever reset to 50%.");
     }
 
     #region 기존 코드 호환용
