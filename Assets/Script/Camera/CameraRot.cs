@@ -1,9 +1,8 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class CameraRot : MonoBehaviour
 {
-       [SerializeField] Transform playerBody;
+    [SerializeField] Transform playerBody;
     [SerializeField] Transform arm;
 
     [Header("Settings")]
@@ -52,48 +51,60 @@ public class CameraRot : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            return;
         }
 
-        // ESC 커서 해제
+        // ESC 커서 해제/잠금 토글
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            Cursor.lockState = (Cursor.lockState == CursorLockMode.Locked) ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = (Cursor.lockState != CursorLockMode.Locked);
         }
 
         // 클릭 시 커서 재잠금
-        if (Input.GetMouseButtonDown(0) && lockCursor)
+        if (Input.GetMouseButtonDown(0) && lockCursor && !isUIOpen)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
         // ✅ 커서가 잠겨있을 때만 카메라 회전
-        //if (Cursor.lockState != CursorLockMode.Locked) return;
+        if (Cursor.lockState != CursorLockMode.Locked) return;
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        // GetAxisRaw를 사용하여 더 즉각적인 반응 제공
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * 0.02f;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * 0.02f;
 
         if (invertY) mouseY = -mouseY;
 
-        yaw   += mouseX;
-        pitch -= mouseY;  // ✅ 주석 해제: 상하 회전 활성화
-
-        // ✅ 업데이트 이후에 Clamp (순서 수정)
+        yaw += mouseX;
+        pitch -= mouseY;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        // 부드럽게 보간
-        Vector2 targetRotation = new Vector2(pitch, yaw);
-        currentRotation = Vector2.SmoothDamp(
-            currentRotation, targetRotation,
-            ref rotationVelocity, smoothTime
-        );
+        // 부드럽게 보간 (smoothTime이 0이면 즉시 회전)
+        if (smoothTime > 0)
+        {
+            Vector2 targetRotation = new Vector2(pitch, yaw);
+            currentRotation = Vector2.SmoothDamp(
+                currentRotation, targetRotation,
+                ref rotationVelocity, smoothTime
+            );
+        }
+        else
+        {
+            currentRotation = new Vector2(pitch, yaw);
+        }
 
-        // 카메라는 상하(Pitch), 몸통은 좌우(Yaw)
-        // transform.localEulerAngles   = new Vector3(currentRotation.x, 0f, 0f);
-        playerBody.eulerAngles       = new Vector3(0f, currentRotation.y, 0f);
+        // ✅ 카메라는 상하(Pitch) 회전
+        transform.localRotation = Quaternion.Euler(currentRotation.x, 0f, 0f);
+        
+        // ✅ 몸통은 좌우(Yaw) 회전
+        playerBody.rotation = Quaternion.Euler(0f, currentRotation.y, 0f);
 
-        // 팔도 카메라와 같이 회전시키려면 아래 주석 해제
-        // arm.localEulerAngles = new Vector3(currentRotation.x, 0f, 0f);
+        // ✅ 팔이 카메라의 자식이 아니라면 여기서 회전시켜줌 (자식이라면 불필요)
+        if (arm != null && arm.parent != transform)
+        {
+            arm.localRotation = Quaternion.Euler(currentRotation.x, 0f, 0f);
+        }
     }
 }
