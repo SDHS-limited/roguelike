@@ -2,47 +2,55 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    [Header("설정")]
-    public float openAngle = 90f;   // 열리는 각도
-    public float openSpeed = 2f;    // 열리는 속도
+    [Header("Detect")]
+    [SerializeField] float detectRange = 3f;
+    [SerializeField] LayerMask playerMask = ~0;
 
-    private bool isLeftOpen;        // 내부적으로 방향을 판단할 변수
-    private bool isOpening = false;
-    private Quaternion targetRotation;
-    private Quaternion closedRotation;
+    [Header("Slide Move")]
+    [SerializeField] bool moveAlongX = true;   // true: X, false: Z
+    [SerializeField] bool moveToPositive = true;
+    [SerializeField] float moveDistance = 2f;
+    [SerializeField] float moveSpeed = 3f;
+    [SerializeField] Transform moveTarget;
+
+    Vector3 closedLocalPosition;
+    Vector3 openedLocalPosition;
 
     void Start()
     {
-        // 처음 닫힌 상태 저장
-        closedRotation = transform.rotation;
+        if (moveTarget == null) moveTarget = transform;
+
+        closedLocalPosition = moveTarget.localPosition;
+
+        Vector3 moveAxis = moveAlongX ? Vector3.right : Vector3.forward;
+        float directionSign = moveToPositive ? 1f : -1f;
+        openedLocalPosition = closedLocalPosition + moveAxis * directionSign * moveDistance;
     }
 
     void Update()
     {
-        if (isOpening)
+        bool playerInRange = false;
+        Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, playerMask);
+        for (int i = 0; i < hits.Length; i++)
         {
-            // 부드럽게 회전
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * openSpeed);
+            if (hits[i].CompareTag("Player"))
+            {
+                playerInRange = true;
+                break;
+            }
         }
+
+        Vector3 targetLocalPosition = playerInRange ? openedLocalPosition : closedLocalPosition;
+        moveTarget.localPosition = Vector3.MoveTowards(
+            moveTarget.localPosition,
+            targetLocalPosition,
+            moveSpeed * Time.deltaTime
+        );
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnDrawGizmosSelected()
     {
-        if (other.CompareTag("Player"))
-        {
-            // 핵심 로직: 플레이어의 x값과 문의 x값을 비교
-            // 플레이어가 문보다 왼쪽에 있으면(x값이 작으면) true, 아니면 false
-            isLeftOpen = other.transform.position.x < transform.position.x;
-
-            // 방향(isLeftOpen)에 따라 목표 회전값 계산
-            // 플레이어가 왼쪽(isLeftOpen=true)에 있으면 오른쪽(양수 각도)으로 개방
-            float angle = isLeftOpen ? openAngle : -openAngle;
-            targetRotation = Quaternion.Euler(0, angle, 0) * closedRotation;
-
-            isOpening = true;
-
-            Debug.Log($"플레이어 위치: {other.transform.position.x}, 문 위치: {transform.position.x}");
-            Debug.Log(isLeftOpen ? "플레이어가 왼쪽에서 진입하여 오른쪽으로 엽니다." : "플레이어가 오른쪽에서 진입하여 왼쪽으로 엽니다.");
-        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, detectRange);
     }
 }
