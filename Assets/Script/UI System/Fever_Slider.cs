@@ -24,6 +24,12 @@ public class Fever_Slider : MonoBehaviour
     void Update()
     {
         UpdateUI();
+        if (Input.GetKeyUp(KeyCode.Backspace)) 
+        {
+            AddFever(100f);
+        }
+
+
     }
 
     private void UpdateUI()

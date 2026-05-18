@@ -92,7 +92,7 @@ public class ExperimentManager : MonoBehaviour
 
     IEnumerator ApplyEffect(Experiment data)
     {
-        yield return new WaitForSeconds(1.2f); // 애니메이션 대기
+        //yield return new WaitForSeconds(1.2f); // 애니메이션 대기
 
         if (activeRoom != null)
         {
