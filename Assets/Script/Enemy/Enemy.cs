@@ -136,7 +136,7 @@
             if (hp <= 0)
             {
                 Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
-                if (fever != null) fever.AddFever(10f); // 처치 시 피버 10 증가
+                if (fever != null) fever.AddFever(5f); // 처치 시 피버 5 증가
 
                 Destroy(gameObject);
             }

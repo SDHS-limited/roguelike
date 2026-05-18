@@ -51,46 +51,46 @@ public class Player : MonoBehaviour
     {
         // move();
 
-        dashCooldownTimerW -= Time.deltaTime;
-        dashCooldownTimerA -= Time.deltaTime;
-        dashCooldownTimerS -= Time.deltaTime;
-        dashCooldownTimerD -= Time.deltaTime;
+        //dashCooldownTimerW -= Time.deltaTime;
+        //dashCooldownTimerA -= Time.deltaTime;
+        //dashCooldownTimerS -= Time.deltaTime;
+        //dashCooldownTimerD -= Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            if (Time.time - lastTapW <= dashDoubleTapWindow)
-            {
-                dash(transform.forward, KeyCode.W);
-            }
-            lastTapW = Time.time;
-        }
+        //if (Input.GetKeyDown(KeyCode.W))
+        //{
+        //    if (Time.time - lastTapW <= dashDoubleTapWindow)
+        //    {
+        //        dash(transform.forward, KeyCode.W);
+        //    }
+        //    lastTapW = Time.time;
+        //}
 
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            if (Time.time - lastTapA <= dashDoubleTapWindow)
-            {
-                dash(-transform.right, KeyCode.A);
-            }
-            lastTapA = Time.time;
-        }
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    if (Time.time - lastTapA <= dashDoubleTapWindow)
+        //    {
+        //        dash(-transform.right, KeyCode.A);
+        //    }
+        //    lastTapA = Time.time;
+        //}
 
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            if (Time.time - lastTapS <= dashDoubleTapWindow)
-            {
-                dash(-transform.forward, KeyCode.S);
-            }
-            lastTapS = Time.time;
-        }
+        //if (Input.GetKeyDown(KeyCode.S))
+        //{
+        //    if (Time.time - lastTapS <= dashDoubleTapWindow)
+        //    {
+        //        dash(-transform.forward, KeyCode.S);
+        //    }
+        //    lastTapS = Time.time;
+        //}
 
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            if (Time.time - lastTapD <= dashDoubleTapWindow)
-            {
-                dash(transform.right, KeyCode.D);
-            }
-            lastTapD = Time.time;
-        }
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    if (Time.time - lastTapD <= dashDoubleTapWindow)
+        //    {
+        //        dash(transform.right, KeyCode.D);
+        //    }
+        //    lastTapD = Time.time;
+        //}
     }
 
     void move()
@@ -145,39 +145,39 @@ public class Player : MonoBehaviour
     //    }
     //}
 
-    void dash(Vector3 inputDir, KeyCode dashKey)
-    {
-        if (isDashing) return;
-        if (dashKey == KeyCode.W && dashCooldownTimerW > 0f) return;
-        if (dashKey == KeyCode.A && dashCooldownTimerA > 0f) return;
-        if (dashKey == KeyCode.S && dashCooldownTimerS > 0f) return;
-        if (dashKey == KeyCode.D && dashCooldownTimerD > 0f) return;
+    //void dash(Vector3 inputDir, KeyCode dashKey)
+    //{
+    //    if (isDashing) return;
+    //    if (dashKey == KeyCode.W && dashCooldownTimerW > 0f) return;
+    //    if (dashKey == KeyCode.A && dashCooldownTimerA > 0f) return;
+    //    if (dashKey == KeyCode.S && dashCooldownTimerS > 0f) return;
+    //    if (dashKey == KeyCode.D && dashCooldownTimerD > 0f) return;
 
-        Vector3 dir = inputDir;
-        dir.y = 0f;
+    //    Vector3 dir = inputDir;
+    //    dir.y = 0f;
 
-        if (dir.sqrMagnitude < 0.01f)
-            dir = transform.forward;
-        else
-            dir.Normalize();
+    //    if (dir.sqrMagnitude < 0.01f)
+    //        dir = transform.forward;
+    //    else
+    //        dir.Normalize();
 
-        float actualDistance = dashDistance;
+    //    float actualDistance = dashDistance;
 
-        float rayStartOffset = 0.2f;
-        Vector3 rayOrigin = transform.position + dir * rayStartOffset;
-        float rayLength = Mathf.Max(0.01f, dashDistance - rayStartOffset);
+    //    float rayStartOffset = 0.2f;
+    //    Vector3 rayOrigin = transform.position + dir * rayStartOffset;
+    //    float rayLength = Mathf.Max(0.01f, dashDistance - rayStartOffset);
 
-        if (Physics.Raycast(rayOrigin, dir, out RaycastHit hit, rayLength, dashBlockLayers))
-        {
-            actualDistance = rayStartOffset + Mathf.Max(0f, hit.distance - dashStopOffset);
-        }
+    //    if (Physics.Raycast(rayOrigin, dir, out RaycastHit hit, rayLength, dashBlockLayers))
+    //    {
+    //        actualDistance = rayStartOffset + Mathf.Max(0f, hit.distance - dashStopOffset);
+    //    }
 
-        StartCoroutine(DashCoroutine(dir, actualDistance));
-        if (dashKey == KeyCode.W) dashCooldownTimerW = dashCooldownW;
-        else if (dashKey == KeyCode.A) dashCooldownTimerA = dashCooldownA;
-        else if (dashKey == KeyCode.S) dashCooldownTimerS = dashCooldownS;
-        else if (dashKey == KeyCode.D) dashCooldownTimerD = dashCooldownD;
-    }
+    //    StartCoroutine(DashCoroutine(dir, actualDistance));
+    //    if (dashKey == KeyCode.W) dashCooldownTimerW = dashCooldownW;
+    //    else if (dashKey == KeyCode.A) dashCooldownTimerA = dashCooldownA;
+    //    else if (dashKey == KeyCode.S) dashCooldownTimerS = dashCooldownS;
+    //    else if (dashKey == KeyCode.D) dashCooldownTimerD = dashCooldownD;
+    //}
 
     IEnumerator DashCoroutine(Vector3 dir, float distance)
     {
