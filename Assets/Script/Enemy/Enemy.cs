@@ -15,6 +15,7 @@
         [SerializeField] Animator anim;
         [SerializeField] Demon currentState;
         [SerializeField] DamageText damageText;
+        [SerializeField] private float rotationSpeed = 8f; // 회전 속도 (높을수록 빠름)
         //[SerializeField] ParticleSystem bloodEffect;
 
         [Header("Gizmos")]
@@ -29,26 +30,29 @@
         [Header("Info")]
         [SerializeField] public float hp = 60;
         
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-            nav = GetComponent<NavMeshAgent>();
+        [Header("AI Settings")]
+        [SerializeField] private float chaseSpeed = 9f;
+        [SerializeField] private float aggressiveRange = 10f;
+        [SerializeField] private float aggressiveSpeedMultiplier = 1.3f;
 
-            nav.speed = 7f;
-            nav.acceleration = 10f;
-            nav.angularSpeed = 800f;
-            nav.stoppingDistance = 2f;
+    void Start()
+    {
+        nav = GetComponent<NavMeshAgent>();
 
-            //bloodEffect.Stop();
-            RegisterToMaps();
-        }
+        nav.speed = chaseSpeed;
+        nav.acceleration = 14f;
+        nav.angularSpeed = 100f;
+        nav.stoppingDistance = 2f;
+        nav.updateRotation = false; // ← NavMesh 자동 회전 비활성화
 
-        void OnDestroy()
+        RegisterToMaps();
+    }
+
+    void OnDestroy()
         {
             UnregisterFromMaps();
         }
 
-        /// <summary> 미니맵/전체맵 매니저에 몬스터 아이콘 등록 (비활성 오브젝트도 찾기) </summary>
         void RegisterToMaps()
         {
             var minimap = FindFirstObjectByType<MinimapManeger>(FindObjectsInactive.Include);
@@ -58,7 +62,6 @@
             if (fullmap != null) fullmap.RegisterMonster(this);
         }
 
-        /// <summary> 미니맵/전체맵에서 몬스터 아이콘 제거 </summary>
         void UnregisterFromMaps()
         {
             var minimap = FindFirstObjectByType<MinimapManeger>(FindObjectsInactive.Include);
@@ -68,28 +71,61 @@
             if (fullmap != null) fullmap.UnregisterMonster(this);
         }
 
-        // Update is called once per frame
-        void Update()
+    void Update()
+    {
+        float distance = target != null ? Vector3.Distance(transform.position, target.position) : float.MaxValue;
+
+        if (distance < range)
         {
-            Range();
-            SmallRange();
+            HandleChasing(distance);
+        }
+        else
+        {
+            StopChasing();
         }
 
-        void Range()
-        {
-            Collider[] hit = Physics.OverlapSphere(transform.position, range, playerMask);
+        SmallRange();
+        FaceTarget(); // ← 매 프레임 플레이어 바라보기
+    }
 
-            if (hit.Length > 0)
+    void FaceTarget()
+    {
+        if (target == null) return;
+
+        Vector3 direction = (target.position - transform.position).normalized;
+        direction.y = 0f; // 수직 회전 방지 (고개 들기 방지)
+
+        if (direction == Vector3.zero) return;
+
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            lookRotation,
+            Time.deltaTime * rotationSpeed
+        );
+    }
+
+    void HandleChasing(float distance)
+        {
+            nav.isStopped = false;
+            anim.SetBool("isMove", true);
+            nav.SetDestination(target.position);
+
+            // Aggressive mode when close
+            if (distance < aggressiveRange)
             {
-                nav.isStopped = false;
-                anim.SetBool("isMove", true);
-                nav.SetDestination(target.position);
+                nav.speed = chaseSpeed * aggressiveSpeedMultiplier;
             }
             else
             {
-                anim.SetBool("isMove", false);
-                nav.isStopped = true;
-            } 
+                nav.speed = chaseSpeed;
+            }
+        }
+
+        void StopChasing()
+        {
+            anim.SetBool("isMove", false);
+            nav.isStopped = true;
         }
 
         void SmallRange()

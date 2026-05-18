@@ -1842,6 +1842,8 @@ MonoBehaviour:
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.15
   hitEffectPrefab: {fileID: 0}
+  bloodSplatterPrefab: {fileID: 7952374988110907137, guid: 7bc3d5f7fdfdd7643b1c215d96ea5317, type: 3}
+  bloodSmokePrefab: {fileID: 6306957281468457816, guid: 124917d25c8e25f41b567c42286d7387, type: 3}
 --- !u!95 &8461258793785792816
 Animator:
   serializedVersion: 7

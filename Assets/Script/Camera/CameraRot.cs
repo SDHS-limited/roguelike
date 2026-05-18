@@ -44,6 +44,8 @@ public class CameraRot : MonoBehaviour
         }
     }
 
+    public Quaternion proceduralRotation = Quaternion.identity;
+
     void Update()
     {
         // UI 열려있으면 커서 해제 후 카메라 입력 차단
@@ -95,8 +97,8 @@ public class CameraRot : MonoBehaviour
             currentRotation = new Vector2(pitch, yaw);
         }
 
-        // ✅ 카메라는 상하(Pitch) 회전
-        transform.localRotation = Quaternion.Euler(currentRotation.x, 0f, 0f);
+        // ✅ 카메라는 상하(Pitch) 회전 + 절차적 회전(Procedural Rotation) 적용
+        transform.localRotation = Quaternion.Euler(currentRotation.x, 0f, 0f) * proceduralRotation;
         
         // ✅ 몸통은 좌우(Yaw) 회전
         playerBody.rotation = Quaternion.Euler(0f, currentRotation.y, 0f);
@@ -104,7 +106,7 @@ public class CameraRot : MonoBehaviour
         // ✅ 팔이 카메라의 자식이 아니라면 여기서 회전시켜줌 (자식이라면 불필요)
         if (arm != null && arm.parent != transform)
         {
-            arm.localRotation = Quaternion.Euler(currentRotation.x, 0f, 0f);
+            arm.localRotation = transform.localRotation;
         }
     }
 }

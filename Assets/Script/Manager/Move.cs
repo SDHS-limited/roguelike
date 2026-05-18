@@ -22,16 +22,18 @@ public class Move : MonoBehaviour
     public float standHeight = 2.0f;
     public float crouchTransitionSpeed = 8f;
 
-    [Header("Bob Settings")]
-    public float bobFrequency = 5f;
-    public float bobAmplitude = 0.05f;
-    public float bobHorizontalAmplitude = 0.02f;
-    public float bobSmoothing = 10f;
-
     [Header("Dash Settings")]
     public float dashSpeed = 20f;
     public float dashDuration = 0.2f;
     public float dashCooldown = 1f;
+
+    [Header("Force Reboot Head Bob")]
+    [SerializeField] private float bobVerticalAmplitude = 0.04f;
+    [SerializeField] private float bobHorizontalAmplitude = 0.02f;
+    [SerializeField] private float bobTiltAngle = 1.5f;
+    [SerializeField] private float bobFrequency = 12f;
+    [SerializeField] private float landPunchAmplitude = 0.15f;
+    [SerializeField] private float landPunchSmoothing = 15f;
 
     public HP_Slider hp;
     private CharacterController controller;
@@ -42,8 +44,10 @@ public class Move : MonoBehaviour
     private bool isRunning;
     
     private float bobTimer;
-    private Vector3 bobOffset;
+    private float currentLandPunch;
+    private bool wasGrounded;
     [SerializeField] Camera playerCamera;
+    private CameraRot camRotComp;
     private float targetHeight;
     private float originalCameraY;
     private float currentCameraY;
@@ -59,11 +63,11 @@ public class Move : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         if (playerCamera == null) playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera != null) camRotComp = playerCamera.GetComponent<CameraRot>();
         
-        // Step Offset을 낮춰 적이나 낮은 장애물을 밟고 올라가는 현상 방지
         if (controller != null) 
         {
-            controller.stepOffset = 0.2f; // 더 낮춤 (기본값 0.3보다 낮게)
+            controller.stepOffset = 0.2f; 
         }
 
         targetHeight = standHeight;
@@ -76,29 +80,16 @@ public class Move : MonoBehaviour
         UpdateControllerCenter();
     }
 
-    // 적과 부딪혔을 때 위로 솟구치는 현상 방지
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // 충돌 지점이 플레이어의 발 근처가 아니라면 (즉, 옆면이나 머리쪽 충돌)
-        // CharacterController가 위로 밀어내려는 성질을 억제합니다.
         if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("suicide") || hit.gameObject.CompareTag("BuildingEnemy"))
         {
-            // 위쪽으로의 이동속도가 있다면 즉시 제거
-            if (verticalVelocity > 0) 
-            {
-                verticalVelocity = 0;
-            }
+            if (verticalVelocity > 0) verticalVelocity = 0;
 
-            // 충돌 법선(Normal)의 Y값이 클수록 플레이어를 위로 밀어내려 한다는 뜻입니다.
-            // 법선의 Y가 0.7 이상인 경우(경사가 급함) 수직 속도를 하향 조정
             if (hit.normal.y > 0.7f)
             {
-                verticalVelocity = -5f; // 강제로 바닥으로 누름
+                verticalVelocity = -5f;
             }
-            
-            // 충돌 지점이 캐릭터 하단 절반보다 위라면 옆으로 밀려나게만 함
-            Vector3 pushDir = new Vector3(hit.normal.x, 0, hit.normal.z).normalized;
-            // 여기에 밀쳐내는 힘을 추가할 수도 있습니다.
         }
     }
 
@@ -123,7 +114,7 @@ public class Move : MonoBehaviour
 
         controller.Move(finalMove * Time.deltaTime);
 
-        //ApplyHeadBob();
+        ApplyForceRebootHeadBob();
     }
 
     void CheckGround()
@@ -193,10 +184,7 @@ public class Move : MonoBehaviour
 
     void HandleJump()
     {
-        //if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        //{
-        //    verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
-        //}
+        // Jump logic can be added here if needed
     }
 
     void ApplyGravity()
@@ -228,28 +216,53 @@ public class Move : MonoBehaviour
         controller.center = new Vector3(0, (controller.height / 2f) - yOffset, 0);
     }
 
-    void ApplyHeadBob()
+    void ApplyForceRebootHeadBob()
     {
-        float speed = new Vector2(controller.velocity.x, controller.velocity.z).magnitude;
-        bool isMovingInput = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f || Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0.1f;
-        
-        if (isGrounded && (speed > 0.1f || isMovingInput))
-        {
-            float speedMultiplier = isRunning ? 1.4f : 1f;
-            bobTimer += Time.deltaTime * bobFrequency * speedMultiplier;
+        if (playerCamera == null) return;
 
-            float targetY = Mathf.Sin(bobTimer) * bobAmplitude;
-            float targetX = Mathf.Cos(bobTimer * 0.5f) * bobHorizontalAmplitude;
+        // 1. Landing Punch detection
+        if (isGrounded && !wasGrounded)
+        {
+            currentLandPunch = landPunchAmplitude;
+        }
+        wasGrounded = isGrounded;
+
+        // Recover from land punch
+        currentLandPunch = Mathf.Lerp(currentLandPunch, 0f, Time.deltaTime * landPunchSmoothing);
+
+        // 2. Velocity-based Head Bob
+        Vector3 horizontalVelocity = new Vector3(controller.velocity.x, 0, controller.velocity.z);
+        float speed = horizontalVelocity.magnitude;
+        float hInput = Input.GetAxisRaw("Horizontal");
+
+        Vector3 targetPos = new Vector3(0, currentCameraY - currentLandPunch, 0);
+        Quaternion targetRot = Quaternion.identity;
+
+        if (isGrounded && speed > 0.1f)
+        {
+            float freq = isRunning ? bobFrequency * 1.3f : bobFrequency;
+            bobTimer += Time.deltaTime * freq;
+
+            float bobY = Mathf.Sin(bobTimer) * bobVerticalAmplitude;
+            float bobX = Mathf.Cos(bobTimer * 0.5f) * bobHorizontalAmplitude;
             
-            bobOffset = Vector3.Lerp(bobOffset, new Vector3(targetX, targetY, 0), Time.deltaTime * bobSmoothing);
+            targetPos += new Vector3(bobX, bobY, 0);
+
+            float tilt = -hInput * bobTiltAngle;
+            tilt += Mathf.Sin(bobTimer * 0.5f) * (bobTiltAngle * 0.5f);
+            targetRot = Quaternion.Euler(0, 0, tilt);
         }
         else
         {
-            bobTimer = 0;
-            bobOffset = Vector3.Lerp(bobOffset, Vector3.zero, Time.deltaTime * bobSmoothing);
+            bobTimer = Mathf.Lerp(bobTimer, 0, Time.deltaTime * 5f);
         }
 
-        playerCamera.transform.localPosition = new Vector3(bobOffset.x, currentCameraY + bobOffset.y, playerCamera.transform.localPosition.z);
+        playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, targetPos, Time.deltaTime * 10f);
+
+        if (camRotComp != null)
+        {
+            camRotComp.proceduralRotation = Quaternion.Slerp(camRotComp.proceduralRotation, targetRot, Time.deltaTime * 10f);
+        }
     }
 
     public bool IsGrounded => isGrounded;

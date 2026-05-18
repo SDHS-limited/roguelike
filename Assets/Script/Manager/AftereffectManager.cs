@@ -168,9 +168,8 @@ public class AftereffectManager : MonoBehaviour
             if (berserkOverlay != null)
             {
                 float alpha = 0.2f + Mathf.PingPong(Time.time * 2f, 0.3f);
-                Color c = berserkOverlay.color;
-                c.a = alpha;
-                berserkOverlay.color = c;
+                // 색상을 명확하게 빨간색으로 고정
+                berserkOverlay.color = new Color(1, 0, 0, alpha);
             }
 
             // 폭주의 대가: 체력 지속 감소
