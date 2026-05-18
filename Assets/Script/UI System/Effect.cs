@@ -47,7 +47,7 @@ public class Effect : MonoBehaviour
         c.a = 0.3f;
         image.color = c;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.4f);
 
         c.a = 0f;
         image.color = c;
@@ -59,7 +59,7 @@ public class Effect : MonoBehaviour
         c.a = 0.3f;
         image.color = c;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.4f);
 
         c.a = 0f;
         image.color = c;

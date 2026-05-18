@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class AftereffectManager : MonoBehaviour
 {
+    //폭주 게이지
     [SerializeField] private Fever_Slider feverSlider;
     [SerializeField] private Player player;
     [SerializeField] private Move move;

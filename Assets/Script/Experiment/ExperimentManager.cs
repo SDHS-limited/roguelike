@@ -11,7 +11,6 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] TMP_Text[] nameTexts;
     [SerializeField] TMP_Text[] desTexts;
     [SerializeField] Image[] ImageText;
-   // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
     [SerializeField] SeleteCardAnim[] cardAnims;
     [SerializeField] GameObject experiment2; // 실험창
@@ -31,15 +30,20 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] HP_Slider hp;
 
     private List<Experiment> currentOptions = new List<Experiment>();
-    [SerializeField] SeleteCardAnim SeleteCardAnim;
+    
+    [Header("Camera")]
+    [SerializeField] CameraRot cameraRot;
 
+    [HideInInspector] public ExperimentObj activeRoom; // 현재 UI를 열고 있는 방
 
     void Start()
     {
+        if (cameraRot == null) cameraRot = FindFirstObjectByType<CameraRot>();
         ShowThreeRandomExperiments();
-        experiment2.SetActive(false);
+        if (experiment2 != null) experiment2.SetActive(false);
         isSelete = false;
     }
+
     void Awake() {
         Application.targetFrameRate = 60;
     }
@@ -47,8 +51,7 @@ public class ExperimentManager : MonoBehaviour
     void ShowThreeRandomExperiments()
     {
         if (allExperiments.Length < 3) return;
-        isSelete = true;
-        // 1. 중복 없는 인덱스 3개 뽑기
+        
         List<int> indices = new List<int>();
         while (indices.Count < 3)
         {
@@ -58,18 +61,16 @@ public class ExperimentManager : MonoBehaviour
 
         currentOptions.Clear();
 
-        // 2. UI 업데이트 및 버튼 이벤트 할당
         for (int i = 0; i < 3; i++)
         {
             int index = i;
             Experiment selectedData = allExperiments[indices[i]];
             currentOptions.Add(selectedData);
-
+                
             nameTexts[i].text = selectedData.name;
             desTexts[i].text = selectedData.Des;
 
             selectButtons[i].onClick.RemoveAllListeners();
-
             selectButtons[i].onClick.AddListener(() =>
             {
                 OnSelectExperiment(index);
@@ -77,104 +78,70 @@ public class ExperimentManager : MonoBehaviour
         }
     }
 
-    // 능력을 선택했을 때 실행되는 함수
     public void OnSelectExperiment(int index)
     {
+        if (isSelete) return; 
+
         Experiment chosen = currentOptions[index];
         Debug.Log($"{chosen.name} 선택됨!");
 
+        isSelete = true; 
         StartCoroutine(cardAnims[index].Anim(1f));
         StartCoroutine(ApplyEffect(chosen)); 
-
     }
 
-
-    // 실제 게임 데이터에 능력을 반영하는 곳
     IEnumerator ApplyEffect(Experiment data)
     {
-        yield return new WaitForSeconds(1f); // 애니메이션 기다림
+        yield return new WaitForSeconds(1.2f); // 애니메이션 대기
+
+        if (activeRoom != null)
+        {
+            activeRoom.MarkAsVisited();
+        }
+
         switch (data.experimentID)
         {
             case 1:
                 bullet.Damage += 5;
                 fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 2:
-                yield return new WaitForSeconds(0.3f);
-
+                yield return new WaitForSeconds(0.1f);
                 move.walkSpeed -= 2f;
                 player.damage -= 4f;
                 fever_Slider.AddFever(10f);
-                StartCoroutine(effect.Damage()); //이펙트
-                ShowThreeRandomExperiments(); //카드 리셋
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+                StartCoroutine(effect.Damage()); 
                 break;
             case 3:
-                //치명타 높음, 적 데미지 증가
-
                 fever_Slider.AddFever(5f);
-
-                ShowThreeRandomExperiments();
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 4:
-                //적 데미지 너프, 총 데미지 너프
-
                 fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 5:
-                
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 6:
-                // 체력 20 추가, 휴우증 1개 추가
                 hp.curHP += 20;
                 fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 7:
-                //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
                 fever_Slider.AddFever(25f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
             case 8:
-                //공격력이 대폭 상승 하지만 폭주 게이지도 대폭 상승한다.
                 bullet.Damage += 20;
                 fever_Slider.AddFever(30f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
                 break;
-            // 추가적인 ID에 따른 효과들...
         }
+
+        if (experiment2 != null) experiment2.SetActive(false);
+        if (cameraRot != null) cameraRot.isUIOpen = false;
+        
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        ShowThreeRandomExperiments(); 
+
+        isSelete = false;
+        activeRoom = null;
     }
 }
