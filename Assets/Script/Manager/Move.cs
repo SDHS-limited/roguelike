@@ -22,9 +22,11 @@ public class Move : MonoBehaviour
     public float standHeight = 2.0f;
     public float crouchTransitionSpeed = 8f;
 
-    [Header("Bob")]
-    public float bobFrequency = 2.2f;
+    [Header("Bob Settings")]
+    public float bobFrequency = 5f;
     public float bobAmplitude = 0.05f;
+    public float bobHorizontalAmplitude = 0.02f;
+    public float bobSmoothing = 10f;
 
     public HP_Slider hp;
     private CharacterController controller;
@@ -34,47 +36,48 @@ public class Move : MonoBehaviour
     private bool isCrouching;
     private bool isRunning;
     private float bobTimer;
+    private Vector3 bobOffset;
     [SerializeField] Camera playerCamera;
     private float targetHeight;
     private float originalCameraY;
 
-    // 추가: 바닥에서 띄울 높이 오프셋 (요청하신 0.17 반영)
+    // 추가: 바닥에서 띄울 높이 오프셋 (요청하신 0.4 반영)
     private readonly float yOffset = 0.4f;
+
+    private float currentCameraY;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera == null) playerCamera = GetComponentInChildren<Camera>();
         
-        // 초기 높이 설정 (standHeight로 시작)
         targetHeight = standHeight;
         controller.height = standHeight;
         
-        // 초기 위치 강제 설정
         transform.position = new Vector3(transform.position.x, yOffset, transform.position.z);
-        
         originalCameraY = playerCamera.transform.localPosition.y;
+        currentCameraY = originalCameraY; // 초기화 추가
         
-        // 초기 Center 설정
         UpdateControllerCenter();
     }
 
     void Update()
     {
         CheckGround();
-        HandleCrouch();
         HandleMovement();
         HandleJump();
         ApplyGravity();
-        ApplyHeadBob();
-
+        HandleCrouch(); 
+        
         // 최종 이동 적용
         controller.Move((moveVelocity + Vector3.up * verticalVelocity) * Time.deltaTime);
+
+        // 이동 후 헤드봅 적용
+        // ApplyHeadBob();
     }
 
     void CheckGround()
     {
-        // 0.17 위치에서 아래로 살짝 내린 지점에서 체크
         Vector3 spherePos = transform.position + Vector3.up * (yOffset - groundCheckRadius);
         isGrounded = Physics.CheckSphere(spherePos, groundCheckRadius, groundLayer);
 
@@ -121,47 +124,49 @@ public class Move : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl)) isCrouching = true;
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            // 머리 위 체크
             if (!Physics.SphereCast(transform.position + Vector3.up * yOffset, 0.4f, Vector3.up, out _, standHeight - crouchHeight))    
                 isCrouching = false;
         }
 
         targetHeight = isCrouching ? crouchHeight : standHeight;
-
-        // 높이 부드럽게 전환
         controller.height = Mathf.Lerp(controller.height, targetHeight, crouchTransitionSpeed * Time.deltaTime);
         
-        // 중요: 높이가 변할 때마다 Center도 같이 업데이트
         UpdateControllerCenter();
 
-        // 카메라 이동
+        // 카메라의 '기본 높이'만 계산 (실제 적용은 ApplyHeadBob에서 수행)
         float targetCamY = isCrouching ? originalCameraY - (standHeight - crouchHeight) * 0.5f : originalCameraY;
-        Vector3 camPos = playerCamera.transform.localPosition;
-        camPos.y = Mathf.Lerp(camPos.y, targetCamY, crouchTransitionSpeed * Time.deltaTime);
-        playerCamera.transform.localPosition = camPos;
+        currentCameraY = Mathf.Lerp(currentCameraY, targetCamY, crouchTransitionSpeed * Time.deltaTime);
     }
 
-    // CharacterController의 중심점을 보정하는 함수
     void UpdateControllerCenter()
     {
-        // Pivot이 중앙에 있다면: Center.y = (Height / 2) - Offset을 해주어야 
-        // 캐릭터의 Transform 위치가 항상 바닥에서 Offset(0.17)만큼 뜬 상태가 됩니다.
         controller.center = new Vector3(0, (controller.height / 2f) - yOffset, 0);
     }
 
     void ApplyHeadBob()
     {
-        if (!isGrounded) return;
-        float speed = moveVelocity.magnitude;
-        if (speed > 0.1f)
+        // 물리적 속도와 입력값을 동시에 체크하여 더 정확하게 움직임 감지
+        float speed = new Vector2(controller.velocity.x, controller.velocity.z).magnitude;
+        bool isMovingInput = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f || Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0.1f;
+        
+        if (isGrounded && (speed > 0.1f || isMovingInput))
         {
-            bobTimer += Time.deltaTime * bobFrequency * (isRunning ? 1.5f : 1f);
-            float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude * (speed / walkSpeed);
-            Vector3 camPos = playerCamera.transform.localPosition;
-            camPos.y += bobOffset;
-            playerCamera.transform.localPosition = camPos;
+            float speedMultiplier = isRunning ? 1.4f : 1f;
+            bobTimer += Time.deltaTime * bobFrequency * speedMultiplier;
+
+            float targetY = Mathf.Sin(bobTimer) * bobAmplitude;
+            float targetX = Mathf.Cos(bobTimer * 0.5f) * bobHorizontalAmplitude;
+            
+            bobOffset = Vector3.Lerp(bobOffset, new Vector3(targetX, targetY, 0), Time.deltaTime * bobSmoothing);
         }
-        else { bobTimer = 0; }
+        else
+        {
+            bobTimer = 0;
+            bobOffset = Vector3.Lerp(bobOffset, Vector3.zero, Time.deltaTime * bobSmoothing);
+        }
+
+        // 최종 적용: 계산된 기본 높이(currentCameraY) + 흔들림 오프셋(bobOffset)
+        playerCamera.transform.localPosition = new Vector3(bobOffset.x, currentCameraY + bobOffset.y, playerCamera.transform.localPosition.z);
     }
 
     public bool IsGrounded => isGrounded;
@@ -170,13 +175,4 @@ public class Move : MonoBehaviour
     {
         moveVelocity += force;
     }
-   
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Enemy"))
-    //    {
-    //        hp.curHP -= 10 ;
-    //    }
-    //}
 }

@@ -23,16 +23,24 @@ public class suicide : MonoBehaviour
         nav = GetComponent<NavMeshAgent>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TakeDamage(float damage)
     {
-        Range();
+        hp -= damage;
+        if (damageText != null) damageText.SetDamage((int)damage);
         
-        if(hp <= 0)
+        if (hp <= 0)
         {
+            Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
+            if (fever != null) fever.AddFever(10f);
             Destroy(gameObject);
         }
     }
+
+    void Update()
+    {
+        Range();
+    }
+
     void Range()
     {
         Collider[] hit = Physics.OverlapSphere(transform.position, range, playerMask);

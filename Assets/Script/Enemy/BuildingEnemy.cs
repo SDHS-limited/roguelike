@@ -59,6 +59,17 @@ public class BuildingEnemy : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
+    public void TakeDamage(float damage)
+    {
+        hp -= damage;
+        if (hp <= 0f)
+        {
+            Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
+            if (fever != null) fever.AddFever(10f);
+            Destroy(gameObject);
+        }
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))

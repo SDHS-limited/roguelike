@@ -135,6 +135,9 @@
 
             if (hp <= 0)
             {
+                Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
+                if (fever != null) fever.AddFever(10f); // 처치 시 피버 10 증가
+
                 Destroy(gameObject);
             }
         }
@@ -180,14 +183,12 @@
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, smallrange);
         }
-
         void OnCollisionEnter(Collision collision)
         {
             if (collision.gameObject.CompareTag("Bullet"))
             {
                 Bullet bullet = collision.gameObject.GetComponent<Bullet>();
                 if (bullet != null) TakeDamage(bullet.Damage);
-                else TakeDamage(20f);
             }
         }
         }

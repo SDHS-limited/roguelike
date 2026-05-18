@@ -1,52 +1,65 @@
-using System;
 using System.Collections;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class room : MonoBehaviour
 {
-    [SerializeField] int alliveEnemy = 0;
-    [SerializeField] Text clearText;
-    [SerializeField] String fulltext;    
+    [SerializeField] private Text clearText;
+    [SerializeField] private string fulltext = "Room Clear";    
 
-    [Header("Enemy")]
-    [SerializeField] float radius = 4f;
-    [SerializeField] LayerMask targetMask;
-    bool isClear = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        alliveEnemy = GetComponentsInChildren<Enemy>().Length;
-    }
+    [Header("Detection Settings")]
+    [SerializeField] private float radius = 10f;
+    [SerializeField] private LayerMask playerMask;
+
+    private bool isClearAnimationStarted = false;
+    private bool isPlayerInRoom = false;
 
     void Update()
     {
-        if(isClear) return;
+        // 1. 플레이어가 해당 방 범위 내에 있는지 확인
+        bool isDetected = Physics.CheckSphere(transform.position, radius, playerMask);
 
-        Collider[] hit = Physics.OverlapSphere(transform.position, radius, targetMask);    
-
-        if (hit.Length == 0 && !isClear)
+        if (isDetected)
         {
-            StartCoroutine(RoomClear()); 
-        }
+            isPlayerInRoom = true;
 
+            // 2. 방의 자식으로 등록된 적(Enemy)이 없는지 확인
+            // 적이 Destroy되면 GetComponentsInChildren 결과에서 제외됩니다.
+            Enemy[] enemies = GetComponentsInChildren<Enemy>();
+
+            if (enemies.Length == 0 && !isClearAnimationStarted)
+            {
+                isClearAnimationStarted = true;
+                StopAllCoroutines();
+                StartCoroutine(RoomClearEffect());
+            }
+        }
+        else
+        {
+            // 3. 방을 나가면 텍스트를 즉시 비우고 상태 리셋
+            if (isPlayerInRoom)
+            {
+                isPlayerInRoom = false;
+                isClearAnimationStarted = false; // 다시 들어왔을 때 재표시 가능하게 함
+                if (clearText != null)
+                {
+                    StopAllCoroutines();
+                    clearText.text = "";
+                }
+            }
+        }
     }
 
-    IEnumerator RoomClear()
+    IEnumerator RoomClearEffect()
     {
-        clearText.text = "";
+        if (clearText == null) yield break;
 
-        foreach(var c in fulltext)
+        clearText.text = "";
+        foreach (char c in fulltext)
         {
             clearText.text += c;
             yield return new WaitForSeconds(0.05f);
-        }
-
-        if (isClear)
-        {
-            yield return new WaitForSeconds(1f);
-            isClear = false;
-            clearText.text = "";
         }
     }
 
