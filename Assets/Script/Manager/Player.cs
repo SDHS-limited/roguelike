@@ -209,18 +209,26 @@ public class Player : MonoBehaviour
 
         isDashing = false;
     }
+    public void TakeDamage(float amount)
+    {
+        if (hp != null) hp.TakeDamage(amount);
+        if (experimentManager != null && experimentManager.GetComponentInChildren<Fever_Slider>() != null)
+        {
+            experimentManager.GetComponentInChildren<Fever_Slider>().AddFever(amount * 0.5f);
+        }
+    }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Enemy"))
         {
-            hp.TakeDamage(1);
-
+            TakeDamage(1);
         }
         if (hit.gameObject.CompareTag("suicide"))
         {
             //폭발 파티클 추가
             Destroy(suicide);
-            hp.TakeDamage(10);
+            TakeDamage(10);
         }
     }
 }

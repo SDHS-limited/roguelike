@@ -17,6 +17,29 @@ public class Effect : MonoBehaviour
 
     }
 
+    [SerializeField] CameraShake cameraShake;
+
+    private Coroutine hitStopCoroutine;
+
+    public void TriggerHitStop(float duration = 0.05f)
+    {
+        if (hitStopCoroutine != null) StopCoroutine(hitStopCoroutine);
+        hitStopCoroutine = StartCoroutine(HitStopRoutine(duration));
+    }
+
+    private IEnumerator HitStopRoutine(float duration)
+    {
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = 1f;
+        hitStopCoroutine = null;
+    }
+
+    public void TriggerCameraShake(float duration, float magnitude)
+    {
+        if (cameraShake != null) StartCoroutine(cameraShake.Shake(duration, magnitude));
+    }
+
     public IEnumerator Damage()
     {
         Color c = image.color;
