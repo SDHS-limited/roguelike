@@ -1,48 +1,86 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Door : MonoBehaviour
 {
-    [Header("설정")]
-    public float openAngle = 90f;   // 열리는 각도
-    public float openSpeed = 2f;    // 열리는 속도
+    [Header("Detect")]
+    [SerializeField] float detectRange = 3f;
+    [SerializeField] LayerMask playerMask = ~0;
 
-    private bool isLeftOpen;        // 내부적으로 방향을 판단할 변수
-    private bool isOpening = false;
-    private Quaternion targetRotation;
-    private Quaternion closedRotation;
+    [Header("Slide Move")]
+    [SerializeField] Vector2 moveOffsetXZ = new Vector2(2f, 0f); // x -> X axis, y -> Z axis offset
+    [SerializeField] float moveSpeed = 3f;
+    [SerializeField] Transform moveTarget;
+
+    Vector3 closedWorldPosition;
+    Vector3 openedWorldPosition;
 
     void Start()
     {
-        // 처음 닫힌 상태 저장
-        closedRotation = transform.rotation;
+        if (moveTarget == null) moveTarget = transform;
+
+        // Runtime safety: if this object is still static, force it off.
+        if (moveTarget.gameObject.isStatic) moveTarget.gameObject.isStatic = false;
+
+        Renderer[] renderers = moveTarget.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null && renderers[i].gameObject.isStatic)
+                renderers[i].gameObject.isStatic = false;
+        }
+
+        closedWorldPosition = moveTarget.position;
+
+        Vector3 slideOffset = new Vector3(moveOffsetXZ.x, 0f, moveOffsetXZ.y);
+        openedWorldPosition = closedWorldPosition + slideOffset;
     }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (moveTarget == null) moveTarget = transform;
+
+        // Demo2 like scenes can have doors saved as Static.
+        // Clear static flags in editor so static batching does not lock door visuals.
+        if (moveTarget != null)
+        {
+            GameObjectUtility.SetStaticEditorFlags(moveTarget.gameObject, 0);
+            Renderer[] renderers = moveTarget.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null)
+                    GameObjectUtility.SetStaticEditorFlags(renderers[i].gameObject, 0);
+            }
+        }
+    }
+#endif
 
     void Update()
     {
-        if (isOpening)
+        bool playerInRange = false;
+        Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, playerMask);
+        for (int i = 0; i < hits.Length; i++)
         {
-            // 부드럽게 회전
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * openSpeed);
+            if (hits[i].CompareTag("Player"))
+            {
+                playerInRange = true;
+                break;
+            }
         }
+
+        Vector3 targetWorldPosition = playerInRange ? openedWorldPosition : closedWorldPosition;
+        moveTarget.position = Vector3.MoveTowards(
+            moveTarget.position,
+            targetWorldPosition,
+            moveSpeed * Time.deltaTime
+        );
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnDrawGizmosSelected()
     {
-        if (other.CompareTag("Player"))
-        {
-            // 핵심 로직: 플레이어의 x값과 문의 x값을 비교
-            // 플레이어가 문보다 왼쪽에 있으면(x값이 작으면) true, 아니면 false
-            isLeftOpen = other.transform.position.x < transform.position.x;
-
-            // 방향(isLeftOpen)에 따라 목표 회전값 계산
-            // 플레이어가 왼쪽(isLeftOpen=true)에 있으면 오른쪽(양수 각도)으로 개방
-            float angle = isLeftOpen ? openAngle : -openAngle;
-            targetRotation = Quaternion.Euler(0, angle, 0) * closedRotation;
-
-            isOpening = true;
-
-            Debug.Log($"플레이어 위치: {other.transform.position.x}, 문 위치: {transform.position.x}");
-            Debug.Log(isLeftOpen ? "플레이어가 왼쪽에서 진입하여 오른쪽으로 엽니다." : "플레이어가 오른쪽에서 진입하여 왼쪽으로 엽니다.");
-        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, detectRange);
     }
 }
