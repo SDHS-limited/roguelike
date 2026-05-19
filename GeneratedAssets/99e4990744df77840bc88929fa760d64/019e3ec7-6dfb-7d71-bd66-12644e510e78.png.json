@@ -1,0 +1,38 @@
+{
+    "asset": "99e4990744df77840bc88929fa760d64",
+    "fileName": "019e3ec7-6dfb-7d71-bd66-12644e510e78.png",
+    "prompt": "A simplified flying mechanical drone for a dark sci-fi game, inspired by the geometric shapes in the reference image. Dark metallic body, two small and subtle demonic horns on the top edges. A prominent circular central core that functions as a gun barrel. Gritty industrial aesthetic with very subtle organic details, matching a dark laboratory environment. Full body view, head to toe, white background, isometric perspective.",
+    "negativePrompt": "",
+    "model": "flux-2-dev",
+    "modelName": "Flux 2 (Dev)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": [
+            {
+                "doodleReferenceType": 7,
+                "doodle": [],
+                "label": "Image",
+                "strength": 0.25,
+                "invertStrength": false,
+                "assetReferenceGuid": "c5a7718fa8b5ab74a9b2575de40da9ea",
+                "unlabeledIndex": -1
+            }
+        ]
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0
+}

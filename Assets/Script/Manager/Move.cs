@@ -266,6 +266,7 @@ public class Move : MonoBehaviour
     }
 
     public bool IsGrounded => isGrounded;
+    public bool IsDashing => isDashing;
 
     public void ApplyStagger(Vector3 force)
     {
