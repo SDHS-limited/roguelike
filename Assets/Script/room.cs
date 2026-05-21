@@ -24,11 +24,8 @@ public class room : MonoBehaviour
         {
             isPlayerInRoom = true;
 
-            // 2. 방의 자식으로 등록된 적(Enemy)이 없는지 확인
-            // 적이 Destroy되면 GetComponentsInChildren 결과에서 제외됩니다.
-            Enemy[] enemies = GetComponentsInChildren<Enemy>();
-
-            if (enemies.Length == 0 && !isClearAnimationStarted)
+            // 2. 방 범위 내에 적(Enemy)이 없는지 확인
+            if (!HasEnemiesInRange() && !isClearAnimationStarted)
             {
                 isClearAnimationStarted = true;
                 StopAllCoroutines();
@@ -49,6 +46,31 @@ public class room : MonoBehaviour
                 }
             }
         }
+    }
+
+    private bool HasEnemiesInRange()
+    {
+        // GetComponentsInChildren<Enemy>() 대신 OverlapSphere로 주변의 적을 직접 감지합니다.
+        // 이는 적이 방의 자식 오브젝트가 아니더라도 정상적으로 작동하게 합니다.
+        Collider[] hits = Physics.OverlapSphere(transform.position, radius);
+        foreach (var hit in hits)
+        {
+            // 태그로 확인 (Enemy 또는 suicide 태그)
+            if (hit.CompareTag("Enemy") || hit.CompareTag("suicide"))
+            {
+                return true;
+            }
+
+            // 컴포넌트로 확인 (태그가 설정되지 않은 경우를 대비하여 여러 타입 체크)
+            if (hit.GetComponent<Enemy>() != null || 
+                hit.GetComponent<BuildingEnemy>() != null || 
+                hit.GetComponent<RangedEnemy>() != null || 
+                hit.GetComponent<suicide>() != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     IEnumerator RoomClearEffect()

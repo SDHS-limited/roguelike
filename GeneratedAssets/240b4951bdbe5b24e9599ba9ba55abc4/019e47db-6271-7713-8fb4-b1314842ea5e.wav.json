@@ -1,0 +1,15 @@
+{
+    "asset": "240b4951bdbe5b24e9599ba9ba55abc4",
+    "fileName": "019e47db-6271-7713-8fb4-b1314842ea5e.wav",
+    "prompt": "powerful realistic pistol gunshot sound effect single shot",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}
