@@ -17,12 +17,22 @@ public class RestManager : MonoBehaviour
     {
         
     }
+    [SerializeField] private RestRoomUI restRoomUI;
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Player"))
         {
-            hp.curHP = 150;
-            StartCoroutine(effect.Heal());
+            if (restRoomUI != null)
+            {
+                restRoomUI.Show();
+            }
+            else
+            {
+                // Fallback for missing UI
+                hp.curHP = 150;
+                StartCoroutine(effect.Heal());
+            }
         }
     }
 }

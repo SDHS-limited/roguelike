@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f13f3350f316a46ad2b963b5362198, type: 3}
   m_Name: 03
   m_EditorClassIdentifier: Assembly-CSharp::Experiment
-  name: "\uAC10\uAC01 \uC608\uBBFC\uD654"
-  Des: "\uCE58\uBA85\uD0C0 \uD655\uB960\uC774 \uB192\uC544\uC9C0\uC9C0\uB9CC \uD53C\uD574\uB7C9\uC774
-    \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  name: "\uD608\uC561 \uAC00\uC18D"
+  Buff: "\uC5F0\uC0AC \uC18D\uB3C4 5% \uC99D\uAC00"
+  Nerf: "\uCD5C\uB300 \uCCB4\uB825 -10"
   experimentID: 3
+  requiredSideEffects: 0

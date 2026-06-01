@@ -24,6 +24,9 @@ public class Gun : MonoBehaviour
     [SerializeField] Recoil recoil;
     [SerializeField] Effect effect;
 
+    public float fireRateMultiplier = 1.0f;
+    public float reloadSpeedMultiplier = 1.0f;
+
     void Start()
     {
         startRot = GunObject.transform.localRotation;
@@ -98,9 +101,9 @@ public class Gun : MonoBehaviour
 
             if (burstCount > 0)
             {
-                // 버스트(멋대로 연사) 중일 때는 매우 빠르게 발사
+                // 버스트(멋대로 연사) 중일 때는 매우 빠르게 발사 (약간 하향: 0.05f -> 0.08f)
                 Shoot();
-                berserkFireTimer = 0.05f; 
+                berserkFireTimer = 0.08f; 
                 burstCount--;
                 
                 // 버스트 중에는 반동 지터를 더 강하게 줌
@@ -111,7 +114,7 @@ public class Gun : MonoBehaviour
                 // 20% 확률로 2~3발 멋대로 폭발적 발사 (버스트 시작)
                 burstCount = UnityEngine.Random.Range(2, 4);
                 Shoot();
-                berserkFireTimer = 0.05f;
+                berserkFireTimer = 0.08f;
             }
             else if (randomRoll < 0.40f)
             {
@@ -124,11 +127,11 @@ public class Gun : MonoBehaviour
             }
             else
             {
-                // 일반적인 폭주 발사 (약간의 랜덤성)
+                // 일반적인 폭주 발사 (약간 하향: 0.1~0.2 -> 0.15~0.25)
                 Shoot();
-                berserkFireTimer = UnityEngine.Random.Range(0.1f, 0.2f);
+                berserkFireTimer = UnityEngine.Random.Range(0.15f, 0.25f);
             }
-        }
+}
     }
     
 
@@ -175,15 +178,28 @@ public class Gun : MonoBehaviour
         
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         
-        // Apply player attack multiplier to bullet
+        // Apply player attack multiplier and critical hit to bullet
         Bullet bulletScript = bullet.GetComponent<Bullet>();
         if (bulletScript != null)
         {
             Player p = GetComponentInParent<Player>();
-            if (p == null) p = GetComponent<Player>(); // Try current object too
+            if (p == null) p = GetComponent<Player>(); 
             if (p != null)
             {
-                bulletScript.Initialize(p.attackPowerMultiplier);
+                float damageMult = p.attackPowerMultiplier;
+                
+                // ID 8: 생존 본능 자극 (체력 낮을수록 공격력 증가 - 최대 7%)
+                float hpRatio = (p.GetComponent<HP_Slider>() != null) ? p.GetComponent<HP_Slider>().curHP / p.GetComponent<HP_Slider>().maxHp : 1f;
+                if (hpRatio < 0.5f) damageMult += 0.07f * (1f - hpRatio * 2f);
+
+                // Critical Hit
+                if (UnityEngine.Random.value < p.criticalChance)
+                {
+                    damageMult *= 2.0f; // Critical damage 2x
+                    Debug.Log("CRITICAL HIT!");
+                }
+                
+                bulletScript.Initialize(damageMult);
             }
         }
 

@@ -177,10 +177,13 @@
                 Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
                 if (fever != null) fever.AddFever(5f); // 처치 시 피버 5 증가
 
+                Player p = FindFirstObjectByType<Player>();
+                if (p != null) p.OnEnemyKilled();
+
                 SpawnDeathEffects();
                 Destroy(gameObject);
             }
-        }
+}
 
         private void SpawnDeathEffects()
         {

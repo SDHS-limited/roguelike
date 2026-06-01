@@ -15,4 +15,6 @@ MonoBehaviour:
   name: "\uC2E0\uCCB4 \uBD88\uC548\uC815\uD654"
   Des: "\uB79C\uB364\uD55C \uB2A5\uB825\uC744 \uC5BB\uC9C0\uB9CC \uC2E4\uD5D8\uC73C\uB85C
     \uC778\uD574 \uD6C4\uC720\uC99D 1\uAC1C\uB97C \uC5BB\uAC8C\uB41C\uB2E4."
+  Buff: Stability Increase
+  Nerf: Speed -2, Attack -40%
   experimentID: 2

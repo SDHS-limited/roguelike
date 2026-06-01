@@ -18,6 +18,8 @@ public class AftereffectManager : MonoBehaviour
     private float nextTriggerTime;
 
     private bool isBerserk = false;
+    public bool hasSacredExplosion = false; // ID 11
+    public int extraSideEffectsOnEnd = 0;   // ID 13
 
     void Start()
     {
@@ -122,6 +124,10 @@ public class AftereffectManager : MonoBehaviour
     {
         if (isBerserk) return;
         isBerserk = true;
+        
+        // Berserk count increase for SideEffect system
+        if (SideEffectManager.Instance != null) SideEffectManager.Instance.IncrementBerserkCount();
+
         StartCoroutine(BerserkRoutine());
     }
 
@@ -162,13 +168,13 @@ public class AftereffectManager : MonoBehaviour
         float originalAccel = move.acceleration;
         float originalPlayerSpeed = player.speed;
 
-        // 속도 대폭 상향 (기본의 3.5배 수준으로 강화)
-        move.walkSpeed = originalWalkSpeed * 3.5f; 
-        move.runSpeed = originalRunSpeed * 2.8f;
-        move.acceleration *= 5.0f;
-        player.speed *= 3.5f; 
+        // 속도 조정 (기존 3.5배에서 피드백을 반영하여 약 2.5배 수준으로 하향 조정)
+        move.walkSpeed = originalWalkSpeed * 2.0f; 
+        move.runSpeed = originalRunSpeed * 1.8f;
+        move.acceleration *= 4.0f;
+        player.speed *= 2.0f; 
 
-        Debug.Log($"[Berserk] Power Overload: AttackMult={player.attackPowerMultiplier}, Speed={move.walkSpeed}");
+        Debug.Log($"[Berserk] Adjusted Balance: AttackMult={player.attackPowerMultiplier}, Speed={move.walkSpeed}");
 
         float elapsed = 0f;
         Effect effects = FindFirstObjectByType<Effect>();
@@ -204,9 +210,12 @@ public class AftereffectManager : MonoBehaviour
         // --- ☠ 3. 종료 단계 (End Phase) ---
         if (berserkEffectController != null) berserkEffectController.EndBerserkEffects();
 
+        // ID 11: 폭주 종료 후 체력 추가 감소
+        if (hasSacredExplosion) player.TakeDamage(10f);
+
         // 원상 복구
-        player.attackPowerMultiplier = originalPlayerDamageMultiplier;
-move.walkSpeed = originalWalkSpeed;
+player.attackPowerMultiplier = originalPlayerDamageMultiplier;
+        move.walkSpeed = originalWalkSpeed;
         move.runSpeed = originalRunSpeed;
         move.acceleration = originalAccel;
         player.speed = originalPlayerSpeed;
@@ -216,8 +225,19 @@ move.walkSpeed = originalWalkSpeed;
         
         if (fPulse != null) fPulse.SetPulse(false);
 
+        // Add side effects after Berserk ends
+        if (SideEffectManager.Instance != null)
+        {
+            SideEffectManager.Instance.AddRandomSideEffect();
+            for (int i = 0; i < extraSideEffectsOnEnd; i++)
+            {
+                SideEffectManager.Instance.AddRandomSideEffect();
+            }
+        }
+        extraSideEffectsOnEnd = 0; // Reset after use
+
         isBerserk = false;
-        feverSlider.ResetFever(0.5f); // 50%로 리셋
+feverSlider.ResetFever(0.5f); // 50%로 리셋
         Debug.Log("Berserk Mode Ended. Fever reset to 50%.");
     }
 

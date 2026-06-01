@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class Player : MonoBehaviour
 {
@@ -10,6 +11,13 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject suicide;
     [SerializeField] public float attackPowerMultiplier = 1.0f;
     [SerializeField] public float speed = 5.0f;
+    public float criticalChance = 0f;
+    public float healOnKillPercentage = 0f; // Added
+    public bool canReviveOnce = false;
+    private bool hasRevived = false;
+
+    [Header("Visual Effects")]
+    [SerializeField] private PostProcessVolume lowHPVolume; // Added
 
     [Header("Dash")]
     [SerializeField] float dashDistance = 5f;
@@ -49,48 +57,32 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        // move();
+        HandleLowHPVisuals();
+    }
 
-        //dashCooldownTimerW -= Time.deltaTime;
-        //dashCooldownTimerA -= Time.deltaTime;
-        //dashCooldownTimerS -= Time.deltaTime;
-        //dashCooldownTimerD -= Time.deltaTime;
+    private void HandleLowHPVisuals()
+    {
+        if (lowHPVolume == null) return;
+        
+        float hpRatio = (hp != null) ? hp.curHP / hp.maxHp : 1f;
+        if (hpRatio < 0.3f)
+        {
+            lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 1f, Time.deltaTime * 2f);
+        }
+        else
+        {
+            lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 0f, Time.deltaTime * 5f);
+        }
+    }
 
-        //if (Input.GetKeyDown(KeyCode.W))
-        //{
-        //    if (Time.time - lastTapW <= dashDoubleTapWindow)
-        //    {
-        //        dash(transform.forward, KeyCode.W);
-        //    }
-        //    lastTapW = Time.time;
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    if (Time.time - lastTapA <= dashDoubleTapWindow)
-        //    {
-        //        dash(-transform.right, KeyCode.A);
-        //    }
-        //    lastTapA = Time.time;
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.S))
-        //{
-        //    if (Time.time - lastTapS <= dashDoubleTapWindow)
-        //    {
-        //        dash(-transform.forward, KeyCode.S);
-        //    }
-        //    lastTapS = Time.time;
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.D))
-        //{
-        //    if (Time.time - lastTapD <= dashDoubleTapWindow)
-        //    {
-        //        dash(transform.right, KeyCode.D);
-        //    }
-        //    lastTapD = Time.time;
-        //}
+    public void OnEnemyKilled()
+    {
+        if (healOnKillPercentage > 0 && hp != null)
+        {
+            float healAmount = hp.maxHp * healOnKillPercentage;
+            hp.curHP = Mathf.Min(hp.maxHp, hp.curHP + healAmount);
+            Debug.Log($"Heal on Kill triggered: +{healAmount} HP");
+        }
     }
 
     void move()
