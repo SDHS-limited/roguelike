@@ -12,12 +12,17 @@ public class Player : MonoBehaviour
     [SerializeField] public float attackPowerMultiplier = 1.0f;
     [SerializeField] public float speed = 5.0f;
     public float criticalChance = 0f;
-    public float healOnKillPercentage = 0f; // Added
-    public bool canReviveOnce = false;
+    public float healOnKillPercentage = 0f;
+    public float hitShakeMultiplier = 1.0f; // Added
+    public float healMultiplier = 1.0f;     // Added
+    public float feverOnHitMultiplier = 0f; // Added
+    public bool isVisionBlurred = false;
+public bool canReviveOnce = false;
     private bool hasRevived = false;
 
     [Header("Visual Effects")]
     [SerializeField] private PostProcessVolume lowHPVolume; // Added
+    [SerializeField] private PostProcessVolume sideEffectVolume;
 
     [Header("Dash")]
     [SerializeField] float dashDistance = 5f;
@@ -62,16 +67,19 @@ public class Player : MonoBehaviour
 
     private void HandleLowHPVisuals()
     {
-        if (lowHPVolume == null) return;
-        
-        float hpRatio = (hp != null) ? hp.curHP / hp.maxHp : 1f;
-        if (hpRatio < 0.3f)
+        if (lowHPVolume != null)
         {
-            lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 1f, Time.deltaTime * 2f);
+            float hpRatio = (hp != null) ? hp.curHP / hp.maxHp : 1f;
+            if (hpRatio < 0.3f)
+                lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 1f, Time.deltaTime * 2f);
+            else
+                lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 0f, Time.deltaTime * 5f);
         }
-        else
+
+        if (sideEffectVolume != null)
         {
-            lowHPVolume.weight = Mathf.Lerp(lowHPVolume.weight, 0f, Time.deltaTime * 5f);
+            float targetWeight = isVisionBlurred ? 1.0f : 0f;
+            sideEffectVolume.weight = Mathf.Lerp(sideEffectVolume.weight, targetWeight, Time.deltaTime * 3f);
         }
     }
 
@@ -207,11 +215,11 @@ public class Player : MonoBehaviour
         Debug.Log("응애");
         
         Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
-        if (fever != null)
+        if (fever != null && feverOnHitMultiplier > 0)
         {
-            fever.AddFever(amount * 0.5f);
+            fever.AddFever(amount * feverOnHitMultiplier);
         }
-    }
+        }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {

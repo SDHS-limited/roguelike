@@ -16,6 +16,7 @@ public class SideEffectManager : MonoBehaviour
     [SerializeField] private Recoil recoil;
     [SerializeField] private Fever_Slider feverSlider;
     [SerializeField] private HP_Slider hpSlider;
+    [SerializeField] private GameObject hallucinationPrefab;
 
     public int berserkCount = 0;
 
@@ -34,7 +35,6 @@ public class SideEffectManager : MonoBehaviour
     {
         if (allSideEffects == null || allSideEffects.Count == 0) return;
 
-        // Higher severity side effects appear as count increases
         List<SideEffect> available = new List<SideEffect>();
         foreach (var se in allSideEffects)
         {
@@ -50,7 +50,6 @@ public class SideEffectManager : MonoBehaviour
             SideEffect selected = available[Random.Range(0, available.Count)];
             activeSideEffects.Add(selected);
             ApplySideEffect(selected);
-            Debug.Log($"Acquired Side Effect: {selected.effectName}");
         }
     }
 
@@ -62,7 +61,6 @@ public class SideEffectManager : MonoBehaviour
             SideEffect removed = activeSideEffects[index];
             RemoveSideEffect(removed);
             activeSideEffects.RemoveAt(index);
-            Debug.Log($"Removed Side Effect: {removed.effectName}");
         }
     }
 
@@ -75,34 +73,92 @@ public class SideEffectManager : MonoBehaviour
                 if (recoil != null) recoil.snappiness *= 0.6f;
                 break;
             case 102: // 근육 경직: 이동속도 감소
-                if (move != null)
-                {
-                    move.walkSpeed *= 0.8f;
-                    move.runSpeed *= 0.8f;
-                }
+                if (move != null) { move.walkSpeed *= 0.8f; move.runSpeed *= 0.8f; }
+                break;
+            case 103: // 시야 혼탁: 화면 흐림
+                if (player != null) player.isVisionBlurred = true;
+                break;
+            case 104: // 과호흡: 연사 속도 감소
+                if (gun != null) gun.fireRateMultiplier *= 0.8f;
+                break;
+            case 105: // 이명: 볼륨 감소
+                AudioListener.volume = 0.4f;
+                break;
+            case 106: // 신경 과민: 피격 흔들림 증가
+                if (player != null) player.hitShakeMultiplier *= 2.5f;
+                break;
+            case 107: // 불면: 회복 효율 감소
+                if (player != null) player.healMultiplier *= 0.5f;
+                break;
+            case 108: // 광휘 누출: 게이지 자연 증가
+                StartCoroutine(RadianceLeakRoutine());
+                break;
+            case 201: // 기억 혼란: 선택지 숨김
+                Debug.Log("[SIDE EFFECT] Memory Confusion active: Card choices reduced.");
                 break;
             case 202: // 과부하: 재장전 속도 감소
                 if (gun != null) gun.reloadSpeedMultiplier *= 0.7f;
                 break;
             case 203: // 신체 붕괴: 최대 체력 -20%
-                if (hpSlider != null)
-                {
-                    hpSlider.maxHp *= 0.8f;
-                    hpSlider.curHP = Mathf.Min(hpSlider.curHP, hpSlider.maxHp);
-                }
+                if (hpSlider != null) { hpSlider.maxHp *= 0.8f; hpSlider.curHP = Mathf.Min(hpSlider.curHP, hpSlider.maxHp); }
+                break;
+            case 301: // 통제 불능: 게이지 획득 +50%
                 break;
             case 302: // 타락 징후: 지속 체력 감소
                 StartCoroutine(CorruptionRoutine());
                 break;
+            case 303: // 정신 분열: 가짜 적 등장
+                StartCoroutine(HallucinationRoutine());
+                break;
+            case 304: // 실험체 한계: 랜덤 능력치 변동
+                StartCoroutine(StatJitterRoutine());
+                break;
+        }
+    }
+
+    private IEnumerator RadianceLeakRoutine()
+    {
+        while (HasEffect(108))
+        {
+            if (feverSlider != null) feverSlider.AddFever(Time.deltaTime * 0.5f);
+            yield return null;
         }
     }
 
     private IEnumerator CorruptionRoutine()
-    {
+{
         while (HasEffect(302))
         {
-            if (hpSlider != null) hpSlider.TakeDamage(0.5f);
-            yield return new WaitForSeconds(3f);
+            if (hpSlider != null) hpSlider.TakeDamage(1f);
+            yield return new WaitForSeconds(4f);
+        }
+    }
+
+    private IEnumerator HallucinationRoutine()
+    {
+        while (HasEffect(303))
+        {
+            yield return new WaitForSeconds(Random.Range(10f, 25f));
+            if (hallucinationPrefab != null && player != null)
+            {
+                Vector3 spawnPos = player.transform.position + player.transform.forward * 8f + Random.insideUnitSphere * 4f;
+                spawnPos.y = player.transform.position.y;
+                GameObject fake = Instantiate(hallucinationPrefab, spawnPos, Quaternion.identity);
+                Destroy(fake, 4f);
+                Debug.Log("[SIDE EFFECT] Hallucination spawned!");
+            }
+        }
+    }
+
+    private IEnumerator StatJitterRoutine()
+    {
+        while (HasEffect(304))
+        {
+            float mult = Random.Range(0.7f, 1.3f);
+            if (player != null) player.attackPowerMultiplier *= mult;
+            yield return new WaitForSeconds(8f);
+            if (player != null) player.attackPowerMultiplier /= mult;
+            yield return new WaitForSeconds(2f);
         }
     }
 
@@ -111,22 +167,15 @@ public class SideEffectManager : MonoBehaviour
         Debug.Log($"[SIDE EFFECT] Purified: {se.effectName}");
         switch (se.effectID)
         {
-            case 101:
-                if (recoil != null) recoil.snappiness /= 0.6f;
-                break;
-            case 102:
-                if (move != null)
-                {
-                    move.walkSpeed /= 0.8f;
-                    move.runSpeed /= 0.8f;
-                }
-                break;
-            case 202:
-                if (gun != null) gun.reloadSpeedMultiplier /= 0.7f;
-                break;
-            case 203:
-                if (hpSlider != null) hpSlider.maxHp /= 0.8f;
-                break;
+            case 101: if (recoil != null) recoil.snappiness /= 0.6f; break;
+            case 102: if (move != null) { move.walkSpeed /= 0.8f; move.runSpeed /= 0.8f; } break;
+            case 103: if (player != null) player.isVisionBlurred = false; break;
+            case 104: if (gun != null) gun.fireRateMultiplier /= 0.8f; break;
+            case 105: AudioListener.volume = 1.0f; break;
+            case 106: if (player != null) player.hitShakeMultiplier /= 2.5f; break;
+            case 107: if (player != null) player.healMultiplier /= 0.5f; break;
+            case 202: if (gun != null) gun.reloadSpeedMultiplier /= 0.7f; break;
+            case 203: if (hpSlider != null) hpSlider.maxHp /= 0.8f; break;
         }
     }
 
@@ -137,17 +186,24 @@ public class SideEffectManager : MonoBehaviour
 
     private void Update()
     {
-        // Testing shortcuts
         if (Input.GetKeyDown(KeyCode.F1)) AddRandomSideEffect();
         if (Input.GetKeyDown(KeyCode.F2)) RemoveRandomSideEffect();
-        if (Input.GetKeyDown(KeyCode.F3)) { berserkCount++; Debug.Log($"Berserk Count: {berserkCount}"); }
-        if (Input.GetKeyDown(KeyCode.F4)) { DecrementBerserkCount(); Debug.Log($"Berserk Count: {berserkCount}"); }
+        if (Input.GetKeyDown(KeyCode.F3)) { if(feverSlider) feverSlider.AddFever(100f); }
+        if (Input.GetKeyDown(KeyCode.F4)) { if(feverSlider) feverSlider.ResetFever(0f); }
         
-        // Manual specific effect tests
         if (Input.GetKeyDown(KeyCode.F5)) AddSpecificEffect(101);
         if (Input.GetKeyDown(KeyCode.F6)) AddSpecificEffect(102);
         if (Input.GetKeyDown(KeyCode.F7)) AddSpecificEffect(203);
         if (Input.GetKeyDown(KeyCode.F8)) AddSpecificEffect(302);
+        if (Input.GetKeyDown(KeyCode.F9)) AddSpecificEffect(201);
+        if (Input.GetKeyDown(KeyCode.F10)) AddSpecificEffect(303);
+        if (Input.GetKeyDown(KeyCode.F11)) AddSpecificEffect(304);
+        if (Input.GetKeyDown(KeyCode.F12)) {
+            foreach(var s in new List<SideEffect>(activeSideEffects)) {
+                RemoveSideEffect(s);
+                activeSideEffects.Remove(s);
+            }
+        }
     }
 
     private void AddSpecificEffect(int id)
@@ -159,4 +215,4 @@ public class SideEffectManager : MonoBehaviour
             ApplySideEffect(se);
         }
     }
-    }
+}

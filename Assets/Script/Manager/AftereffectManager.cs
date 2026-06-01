@@ -204,8 +204,14 @@ public class AftereffectManager : MonoBehaviour
                 player.TakeDamage(1.5f);
             }
 
+            // ID 11: 신성 폭발 (폭주 시 주변 적에게 범위 피해 발생)
+            if (hasSacredExplosion && elapsed % 1.0f < Time.deltaTime)
+            {
+                TriggerSacredExplosion();
+            }
+
             yield return null;
-        }
+}
         
         // --- ☠ 3. 종료 단계 (End Phase) ---
         if (berserkEffectController != null) berserkEffectController.EndBerserkEffects();
@@ -239,10 +245,26 @@ player.attackPowerMultiplier = originalPlayerDamageMultiplier;
         isBerserk = false;
 feverSlider.ResetFever(0.5f); // 50%로 리셋
         Debug.Log("Berserk Mode Ended. Fever reset to 50%.");
-    }
+        }
 
-    #region 기존 코드 호환용
-    public IEnumerator SpeedDown()
+        private void TriggerSacredExplosion()
+        {
+        Debug.Log("[EXPERIMENT] Sacred Explosion Triggered!");
+        Collider[] hits = Physics.OverlapSphere(player.transform.position, 8f);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Enemy"))
+            {
+                Enemy enemy = hit.GetComponent<Enemy>();
+                if (enemy != null) enemy.TakeDamage(15f);
+            }
+        }
+        Effect effects = FindFirstObjectByType<Effect>();
+        if (effects != null) effects.TriggerCameraShake(0.15f, 0.2f);
+        }
+
+        #region 기존 코드 호환용
+public IEnumerator SpeedDown()
     {
         player.speed = 2f;
         yield return new WaitForSeconds(10f);

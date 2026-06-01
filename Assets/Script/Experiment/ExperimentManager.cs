@@ -55,6 +55,10 @@ public class ExperimentManager : MonoBehaviour
         if (allExperiments.Length < 3) return;
         
         int currentSideEffects = SideEffectManager.Instance != null ? SideEffectManager.Instance.SideEffectCount : 0;
+        
+        // ID 201: 기억 혼란 (실험 선택지 1개 숨김)
+        int cardCount = (SideEffectManager.Instance != null && SideEffectManager.Instance.HasEffect(201)) ? 2 : 3;
+
         List<Experiment> availablePool = new List<Experiment>();
         foreach (var exp in allExperiments)
         {
@@ -66,27 +70,34 @@ public class ExperimentManager : MonoBehaviour
 
         if (availablePool.Count < 3) availablePool = new List<Experiment>(allExperiments); // Fallback
 
+        // Hide all buttons first
+        foreach (var btn in selectButtons) btn.gameObject.SetActive(false);
+
         List<int> indices = new List<int>();
-        while (indices.Count < 3)
+        int safety = 0;
+        while (indices.Count < cardCount && safety < 100)
         {
             int randomIndex = Random.Range(0, availablePool.Count);
             if (!indices.Contains(randomIndex)) indices.Add(randomIndex);
+            safety++;
         }
 
         currentOptions.Clear();
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < indices.Count; i++)
         {
             int index = i;
             Experiment selectedData = availablePool[indices[i]];
             currentOptions.Add(selectedData);
+            
+            selectButtons[i].gameObject.SetActive(true);
                 
             nameTexts[i].text = selectedData.name;
             // 설명 제외: 버프, 너프, ID만 표시
             desTexts[i].text = $"{selectedData.Buff}\n{selectedData.Nerf}\nID: {selectedData.experimentID}";
 
             selectButtons[i].onClick.RemoveAllListeners();
-    selectButtons[i].onClick.AddListener(() =>
+            selectButtons[i].onClick.AddListener(() =>
             {
                 OnSelectExperiment(index);
             });
@@ -141,9 +152,10 @@ public class ExperimentManager : MonoBehaviour
                 break;
             case 4: // 신경 강화
                 player.criticalChance += 0.1f;
+                player.feverOnHitMultiplier = 0.5f; // 피격 시 데미지의 50%만큼 게이지 상승
                 if (fever_Slider != null) fever_Slider.AddFever(5f); 
                 break;
-            case 6: // 반응 속도 증폭
+case 6: // 반응 속도 증폭
                 move.walkSpeed *= 1.15f;
                 move.runSpeed *= 1.15f;
                 if (recoil != null) recoil.snappiness *= 0.8f;
