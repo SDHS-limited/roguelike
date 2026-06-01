@@ -1,0 +1,15 @@
+{
+    "asset": "c6f760e57bce45347b6cf3269f5ee500",
+    "fileName": "019e80ea-876e-7343-b736-74707b0612d2.wav",
+    "prompt": "deep cinematic bass drop, holy energy explosion sound, dramatic transition, ethereal impact",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

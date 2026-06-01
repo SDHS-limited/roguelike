@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 건물에 고정된 포탑형 적 AI.
@@ -48,10 +48,13 @@ public class BuildingEnemy : MonoBehaviour
     /// <summary>최대 체력</summary>
     [SerializeField] private float hp = 150f;
 
+    /// <summary>건물 파괴 시 생성할 대형 폭발 이펙트</summary>
+    [SerializeField] private GameObject buildingExplosionPrefab;
+
     /// <summary>사망 시 생성할 혈흔 스플래터 이펙트 프리팹</summary>
     [SerializeField] private GameObject bloodSplatterPrefab;
 
-    /// <summary>사망 시 생성할 연기 이펙트 프리팹</summary>
+    /// <summary>사망 시 생성할 연기 이펙트 프리팹 (사용되지 않음 - buildingExplosion으로 대체 가능)</summary>
     [SerializeField] private GameObject bloodSmokePrefab;
 
     // ───────────────────────────────────────────
@@ -210,11 +213,20 @@ public class BuildingEnemy : MonoBehaviour
         if (_feverSlider != null)
             _feverSlider.AddFever(15f);
 
-        // 사망 위치에 혈흔/연기 이펙트 생성 (유틸 클래스 위임)
-        DeathEffectUtil.SpawnDeathEffects(transform.position, bloodSmokePrefab, bloodSplatterPrefab);
+        // 건물 전용 대형 폭발 생성
+        if (buildingExplosionPrefab != null)
+        {
+            Instantiate(buildingExplosionPrefab, transform.position + Vector3.up, Quaternion.identity);
+        }
+
+        // 바닥 혈흔 생성
+        if (bloodSplatterPrefab != null)
+        {
+            DeathEffectUtil.SpawnDeathEffects(transform.position, null, bloodSplatterPrefab);
+        }
 
         if (_effectController != null)
-            _effectController.TriggerCameraShake(0.2f, 0.2f);
+            _effectController.TriggerCameraShake(0.3f, 0.4f); // 건물이므로 더 강한 진동
 
         Destroy(gameObject);
     }

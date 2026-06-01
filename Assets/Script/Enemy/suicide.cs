@@ -35,11 +35,18 @@ public class suicide : MonoBehaviour
         if(playerObj != null) target = playerObj.transform;
     }
 
+    [SerializeField] private GameObject hitEffectPrefab;
+
     public void TakeDamage(float damage)
     {
         hp -= damage;
         if (damageText != null) damageText.SetDamage((int)damage);
         
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position + Vector3.up, Quaternion.identity, transform);
+        }
+
         if (hp <= 0)
         {
             Explode();

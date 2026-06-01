@@ -6,9 +6,9 @@ public class Bullet : MonoBehaviour
     [SerializeField] float lifeTime = 3f;
     [SerializeField] public float Damage = 20;
     [SerializeField] GameObject hitEffectPrefab;
+    [SerializeField] GameObject bloodEffectPrefab;
     
     Rigidbody rb;
-    Enemy enemy;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -19,21 +19,34 @@ public class Bullet : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (collision.contacts.Length == 0)
         {
-            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-            if (enemy != null)
+            Destroy(gameObject);
+            return;
+        }
+
+        ContactPoint contact = collision.contacts[0];
+
+        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Player"))
+        {
+            // 데미지 전달
+            collision.gameObject.SendMessage("TakeDamage", Damage, SendMessageOptions.DontRequireReceiver);
+
+            // 피 파티클 생성
+            GameObject effectToSpawn = bloodEffectPrefab; 
+            
+            if (effectToSpawn != null)
             {
-                enemy.SendMessage("TakeDamage", Damage, SendMessageOptions.DontRequireReceiver);
+                // Parent the blood effect to the hit object so it "keeps up" with movement
+                GameObject blood = Instantiate(effectToSpawn, contact.point, Quaternion.LookRotation(contact.normal), collision.transform);
+                Destroy(blood, 2f);
             }
+
             Destroy(gameObject);
         }
         else
         {
-            // 충돌 지점 정보 가져오기
-            ContactPoint contact = collision.contacts[0];
-
-            // 파티클 생성 (법선 방향으로 회전)
+            // 벽 등 기타 충돌
             if (hitEffectPrefab != null)
             {
                 GameObject hitt = Instantiate(
@@ -46,4 +59,4 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
         }
     }
-}
+    }

@@ -173,7 +173,20 @@ public class Gun : MonoBehaviour
         
         Effect effects = FindFirstObjectByType<Effect>();
         
-        Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        
+        // Apply player damage to bullet
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            Player p = GetComponentInParent<Player>();
+            if (p == null) p = GetComponent<Player>(); // Try current object too
+            if (p != null)
+            {
+                bulletScript.Damage = p.damage;
+            }
+        }
+
         if (effects != null) effects.TriggerCameraShake(0.1f, 0.15f);
         recoil.Fire();
     }
