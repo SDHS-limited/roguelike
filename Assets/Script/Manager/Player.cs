@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     [SerializeField] Effect effect;
     [SerializeField] HP_Slider hp;
     [SerializeField] GameObject suicide;
-    [SerializeField] public float damage = 10f;
+    [SerializeField] public float attackPowerMultiplier = 1.0f;
     [SerializeField] public float speed = 5.0f;
 
     [Header("Dash")]

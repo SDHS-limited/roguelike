@@ -133,6 +133,11 @@ public class AftereffectManager : MonoBehaviour
     {
         Debug.Log("!!! BERSERK MODE ACTIVATED !!!");
         
+        // Fever Slider Pulse
+        FeverSliderPulse fPulse = feverSlider.GetComponent<FeverSliderPulse>();
+        if (fPulse == null) fPulse = feverSlider.gameObject.AddComponent<FeverSliderPulse>();
+        fPulse.SetPulse(true);
+
         // --- 🎬 1. 시작 단계 (Start Phase) ---
         if (berserkEffectController != null) berserkEffectController.StartBerserkEffects(berserkDuration);
         
@@ -145,9 +150,11 @@ public class AftereffectManager : MonoBehaviour
 
         // --- ⚔ 2. 진행 중 단계 (Active Phase) ---
         // 능력치 강화 및 무기 설정
-        float originalPlayerDamage = player.damage;
-        player.damage *= 3.0f; // 공격력 3배로 상향
+        float originalPlayerDamageMultiplier = player.attackPowerMultiplier;
+        player.attackPowerMultiplier *= 3.0f; // 공격력 3배로 상향
         gun.SendMessage("SetBerserk", true, SendMessageOptions.DontRequireReceiver);
+        
+        if (recoil != null) recoil.isBerserk = true; // 반동 감소 활성화
 
         // 부정적 효과: 입력 과민 반응 (속도 및 가속도 대폭 증가)
         float originalWalkSpeed = move.walkSpeed;
@@ -155,13 +162,13 @@ public class AftereffectManager : MonoBehaviour
         float originalAccel = move.acceleration;
         float originalPlayerSpeed = player.speed;
 
-        // 속도 대폭 상향 (기본의 3배 수준)
-        move.walkSpeed = originalWalkSpeed * 3.0f; 
-        move.runSpeed = originalRunSpeed * 2.5f;
+        // 속도 대폭 상향 (기본의 3.5배 수준으로 강화)
+        move.walkSpeed = originalWalkSpeed * 3.5f; 
+        move.runSpeed = originalRunSpeed * 2.8f;
         move.acceleration *= 5.0f;
-        player.speed *= 3.0f; // Player.cs의 speed도 동기화
+        player.speed *= 3.5f; 
 
-        Debug.Log($"[Berserk] Damage: {player.damage}, WalkSpeed: {move.walkSpeed}, RunSpeed: {move.runSpeed}");
+        Debug.Log($"[Berserk] Power Overload: AttackMult={player.attackPowerMultiplier}, Speed={move.walkSpeed}");
 
         float elapsed = 0f;
         Effect effects = FindFirstObjectByType<Effect>();
@@ -177,11 +184,11 @@ public class AftereffectManager : MonoBehaviour
             if (recoil != null)
             {
                 // Active Phase 연출: 카메라 흔들림과 조준 흔들림
-                recoil.SetJitter(Random.Range(2f, 5f));
-                if (elapsed % 0.2f < Time.deltaTime) 
+                recoil.SetJitter(Random.Range(2.5f, 5.5f));
+                if (elapsed % 0.15f < Time.deltaTime) 
                 {
-                    recoil.ApplyTwitch(Random.Range(2f, 4f));
-                    if (effects != null) effects.TriggerCameraShake(0.2f, 0.25f);
+                    recoil.ApplyTwitch(Random.Range(2.5f, 4.5f));
+                    if (effects != null) effects.TriggerCameraShake(0.2f, 0.3f);
                 }
             }
 
@@ -197,12 +204,9 @@ public class AftereffectManager : MonoBehaviour
         // --- ☠ 3. 종료 단계 (End Phase) ---
         if (berserkEffectController != null) berserkEffectController.EndBerserkEffects();
 
-        // 후유증 알림
-        Debug.Log("[Berserk] AFTEREFFECTS: Sacrificial Power Depleted. Movement normalized.");
-
         // 원상 복구
-        player.damage = originalPlayerDamage;
-        move.walkSpeed = originalWalkSpeed;
+        player.attackPowerMultiplier = originalPlayerDamageMultiplier;
+move.walkSpeed = originalWalkSpeed;
         move.runSpeed = originalRunSpeed;
         move.acceleration = originalAccel;
         player.speed = originalPlayerSpeed;
@@ -210,11 +214,10 @@ public class AftereffectManager : MonoBehaviour
         gun.SendMessage("SetBerserk", false, SendMessageOptions.DontRequireReceiver);
         if (recoil != null) recoil.isBerserk = false;
         
-        FeverSliderPulse pulse = feverSlider.GetComponent<FeverSliderPulse>();
-        if (pulse != null) pulse.SetPulse(false);
+        if (fPulse != null) fPulse.SetPulse(false);
 
         isBerserk = false;
-feverSlider.ResetFever(0.5f); // 50%로 리셋
+        feverSlider.ResetFever(0.5f); // 50%로 리셋
         Debug.Log("Berserk Mode Ended. Fever reset to 50%.");
     }
 
@@ -228,9 +231,9 @@ feverSlider.ResetFever(0.5f); // 50%로 리셋
 
     public IEnumerator PainDamage()
     {
-        player.damage = 20;
+        player.attackPowerMultiplier = 2.0f;
         yield return new WaitForSeconds(10f);
-        player.damage = 10;
+        player.attackPowerMultiplier = 1.0f;
     }
-    #endregion
+#endregion
 }

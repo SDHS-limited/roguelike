@@ -175,7 +175,7 @@ public class Gun : MonoBehaviour
         
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         
-        // Apply player damage to bullet
+        // Apply player attack multiplier to bullet
         Bullet bulletScript = bullet.GetComponent<Bullet>();
         if (bulletScript != null)
         {
@@ -183,7 +183,7 @@ public class Gun : MonoBehaviour
             if (p == null) p = GetComponent<Player>(); // Try current object too
             if (p != null)
             {
-                bulletScript.Damage = p.damage;
+                bulletScript.Initialize(p.attackPowerMultiplier);
             }
         }
 

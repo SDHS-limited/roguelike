@@ -102,13 +102,13 @@ public class ExperimentManager : MonoBehaviour
         switch (data.experimentID)
         {
             case 1:
-                bullet.Damage += 5;
+                player.attackPowerMultiplier += 0.5f;
                 fever_Slider.AddFever(5f);
                 break;
             case 2:
                 yield return new WaitForSeconds(0.1f);
                 move.walkSpeed -= 2f;
-                player.damage -= 4f;
+                player.attackPowerMultiplier -= 0.4f;
                 fever_Slider.AddFever(10f);
                 StartCoroutine(effect.Damage()); 
                 break;
@@ -128,7 +128,7 @@ public class ExperimentManager : MonoBehaviour
                 fever_Slider.AddFever(25f);
                 break;
             case 8:
-                bullet.Damage += 20;
+                player.attackPowerMultiplier += 2.0f;
                 fever_Slider.AddFever(30f);
                 break;
         }

@@ -4,12 +4,17 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] float speed = 50f;
     [SerializeField] float lifeTime = 3f;
-    [SerializeField] public float Damage = 20;
+    [SerializeField] public float Damage = 10;
     [SerializeField] GameObject hitEffectPrefab;
     [SerializeField] GameObject bloodEffectPrefab;
+
+    public void Initialize(float multiplier)
+    {
+        Damage *= multiplier;
+    }
     
     Rigidbody rb;
-    void Start()
+void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.linearVelocity = transform.forward * speed;

@@ -32,30 +32,64 @@ public class BerserkEffectController : MonoBehaviour
     private float originalFOV;
     private float targetFOV; 
 
+    private void Awake()
+    {
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+            if (mainCamera == null) mainCamera = Object.FindFirstObjectByType<Camera>();
+        }
+
+        if (volume == null) volume = GetComponent<PostProcessVolume>();
+        if (volume == null) volume = Object.FindFirstObjectByType<PostProcessVolume>();
+
+        if (volume != null && volume.profile != null)
+        {
+            volume.profile.TryGetSettings(out colorGrading);
+            volume.profile.TryGetSettings(out vignette);
+            volume.profile.TryGetSettings(out chromaticAberration);
+            volume.profile.TryGetSettings(out lensDistortion);
+        }
+
+        if (mainCamera != null)
+        {
+            originalFOV = mainCamera.fieldOfView;
+            targetFOV = originalFOV + 15f; 
+        }
+
+        if (warningUI != null) warningUI.SetActive(false);
+        if (flashOverlay != null) flashOverlay.gameObject.SetActive(false);
+    }
+
     public void SetGaugeEffects(float ratio)
     {
-        if (ratio >= 0.8f && ratio < 1.0f)
+        // 80%~100% Preview sequence
+        if (ratio >= 0.8f)
         {
-            // 80%~90%: Edge Glow (Vignette increase)
             if (vignette != null)
             {
                 vignette.intensity.overrideState = true;
-                float v = Mathf.InverseLerp(0.8f, 1.0f, ratio) * 0.4f;
+                vignette.color.overrideState = true;
+                float v = Mathf.InverseLerp(0.8f, 1.0f, ratio) * 0.45f;
                 vignette.intensity.value = v;
-                vignette.color.value = new Color(0.8f, 0.7f, 0.2f); // Goldish
+                vignette.color.value = new Color(1f, 0.8f, 0.2f); // Goldish edge
             }
         }
-        
-        if (ratio >= 0.9f && ratio < 1.0f)
+
+        if (ratio >= 0.9f)
         {
-            // 90%: Chromatic Aberration start & Heartbeat
             if (chromaticAberration != null)
             {
                 chromaticAberration.intensity.overrideState = true;
-                chromaticAberration.intensity.value = Mathf.InverseLerp(0.9f, 1.0f, ratio) * 0.5f;
+                chromaticAberration.intensity.value = Mathf.InverseLerp(0.9f, 1.0f, ratio) * 0.6f;
             }
             
-            // Heartbeat sound logic could be here, but we'll trigger it once in manager
+            // Faint heartbeat pulse in vignette
+            if (vignette != null)
+            {
+                float pulse = Mathf.PingPong(Time.time * 2f, 0.1f);
+                vignette.intensity.value += pulse;
+            }
         }
     }
 
@@ -83,16 +117,17 @@ public class BerserkEffectController : MonoBehaviour
     {
         Debug.Log("[Berserk] Starting Enhanced Presentation");
 
-        // 1. Pre-flash Golden Halo / Particle hint (Optional UI pulse)
-        if (redOverlay != null)
-        {
-            redOverlay.color = new Color(1, 0.9f, 0.5f, 0.5f); // Golden flash hint
-        }
-
-        // 2. Entry Flash (0.3s as recommended)
+        // 1. Golden Hint (0.1s)
         if (flashOverlay != null)
         {
             flashOverlay.gameObject.SetActive(true);
+            flashOverlay.color = new Color(1, 0.9f, 0.5f, 0.6f); // Golden glow
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        // 2. Entry White Flash (0.3s)
+        if (flashOverlay != null)
+        {
             flashOverlay.color = Color.white;
         }
 
@@ -110,11 +145,7 @@ public class BerserkEffectController : MonoBehaviour
             }
         }
 
-        // Character Portrait state
-        Color originalPortraitColor = portraitImage != null ? portraitImage.color : Color.white;
-        Vector3 originalPortraitScale = portraitImage != null ? portraitImage.transform.localScale : Vector3.one;
-
-        // Flash Fade Out (Fast 0.3s)
+        // Fade Flash Out
         float flashDuration = 0.3f;
         float elapsedFlash = 0f;
         while (elapsedFlash < flashDuration)
@@ -133,9 +164,9 @@ public class BerserkEffectController : MonoBehaviour
             audioSource.Play();
         }
 
-        // 3. Gradual Lens Distortion, FOV Increase, and Exposure Brightening
+        // 3. Active State (Bright & Strong)
         float elapsed = 0f;
-        float transitionDuration = 1.0f; // Faster transition to feel the "power"
+        float transitionDuration = 0.5f; // Fast transition
         while (elapsed < transitionDuration)
         {
             elapsed += Time.deltaTime;
@@ -143,26 +174,13 @@ public class BerserkEffectController : MonoBehaviour
 
             if (colorGrading != null)
             {
-                colorGrading.saturation.overrideState = true;
-                colorGrading.contrast.overrideState = true;
-                colorGrading.colorFilter.overrideState = true;
                 colorGrading.postExposure.overrideState = true;
+                colorGrading.saturation.overrideState = true;
+                colorGrading.colorFilter.overrideState = true;
 
-                colorGrading.saturation.value = Mathf.Lerp(0f, 25f, t);
-                colorGrading.contrast.value = Mathf.Lerp(0f, 35f, t);
-                colorGrading.postExposure.value = Mathf.Lerp(0f, 0.8f, t); // Brighten as recommended
-                colorGrading.colorFilter.value = Color.Lerp(Color.white, new Color(1, 0.95f, 0.8f), t); 
-            }
-            if (vignette != null)
-            {
-                vignette.intensity.overrideState = true;
-                vignette.intensity.value = Mathf.Lerp(0.4f, 0.55f, t);
-                vignette.color.value = new Color(0.1f, 0.05f, 0f); // Dark gold edge
-            }
-            if (chromaticAberration != null)
-            {
-                chromaticAberration.intensity.overrideState = true;
-                chromaticAberration.intensity.value = Mathf.Lerp(0.5f, 0.8f, t);
+                colorGrading.postExposure.value = Mathf.Lerp(0f, 1.0f, t); // Brighter exposure
+                colorGrading.saturation.value = Mathf.Lerp(0f, 20f, t);
+                colorGrading.colorFilter.value = Color.Lerp(Color.white, new Color(1, 0.95f, 0.85f), t); // Warm gold tint
             }
             
             if (mainCamera != null) mainCamera.fieldOfView = Mathf.Lerp(originalFOV, targetFOV, t);
@@ -170,25 +188,24 @@ public class BerserkEffectController : MonoBehaviour
             yield return null;
         }
 
-        // 4. Continuous Pulse
+        // 4. Constant Effects while Active
         while (true)
         {
             float pulse = Mathf.PingPong(Time.time * 6f, 1f);
             
-            if (warningText != null) warningText.alpha = 0.6f + pulse * 0.4f;
-            
-            if (redOverlay != null) redOverlay.color = new Color(1, 0.9f, 0.4f, 0.05f + pulse * 0.1f);
+            if (warningText != null) warningText.alpha = 0.7f + pulse * 0.3f;
+            if (redOverlay != null) redOverlay.color = new Color(1, 0.85f, 0.3f, 0.05f + pulse * 0.1f);
             
             if (portraitImage != null)
             {
-                portraitImage.color = Color.Lerp(originalPortraitColor, new Color(1, 1, 0.7f), pulse); // Goldish pulse
-                portraitImage.transform.localScale = originalPortraitScale * (1f + pulse * 0.08f);
+                portraitImage.color = Color.Lerp(Color.white, new Color(1, 1, 0.8f), pulse);
+                portraitImage.transform.localScale = Vector3.one * (1f + pulse * 0.05f);
             }
 
             if (lensDistortion != null)
             {
                 lensDistortion.intensity.overrideState = true;
-                lensDistortion.intensity.value = -15f - (Mathf.Sin(Time.time * 2.5f) * 10f);
+                lensDistortion.intensity.value = -10f - (Mathf.Sin(Time.time * 3f) * 10f);
             }
 
             yield return null;
@@ -197,14 +214,6 @@ public class BerserkEffectController : MonoBehaviour
 
     private IEnumerator EndEffectsRoutine()
     {
-        Debug.Log("[Berserk] Power Normalized - Side Effects Active");
-        
-        if (portraitImage != null)
-        {
-            portraitImage.color = new Color(0.7f, 0.7f, 0.7f); // Drained look
-            portraitImage.transform.localScale = Vector3.one;
-        }
-
         if (audioSource != null && breathingClip != null)
         {
             audioSource.Stop();
@@ -212,11 +221,10 @@ public class BerserkEffectController : MonoBehaviour
         }
 
         float elapsed = 0f;
-        float duration = 3.5f; 
+        float duration = 2.5f; 
         
-        float startSaturation = colorGrading != null ? colorGrading.saturation.value : 0f;
-        float startExposure = colorGrading != null ? colorGrading.postExposure.value : 0f;
-        float startFOV = mainCamera != null ? mainCamera.fieldOfView : originalFOV;
+        float startExposure = colorGrading != null ? colorGrading.postExposure.value : 1.0f;
+        float startFOV = mainCamera != null ? mainCamera.fieldOfView : targetFOV;
 
         while (elapsed < duration)
         {
@@ -225,20 +233,16 @@ public class BerserkEffectController : MonoBehaviour
 
             if (colorGrading != null)
             {
-                colorGrading.saturation.value = Mathf.Lerp(startSaturation, 0f, t);
                 colorGrading.postExposure.value = Mathf.Lerp(startExposure, 0f, t);
+                colorGrading.saturation.value = Mathf.Lerp(20f, 0f, t);
                 colorGrading.colorFilter.value = Color.Lerp(colorGrading.colorFilter.value, Color.white, t);
             }
-            if (vignette != null)
-            {
-                vignette.intensity.value = Mathf.Lerp(0.55f, 0f, t);
-            }
+            if (vignette != null) vignette.intensity.value = Mathf.Lerp(0.5f, 0f, t);
             if (chromaticAberration != null) chromaticAberration.intensity.value = Mathf.Lerp(0.8f, 0f, t);
             if (lensDistortion != null) lensDistortion.intensity.value = Mathf.Lerp(lensDistortion.intensity.value, 0f, t);
 
             if (mainCamera != null) mainCamera.fieldOfView = Mathf.Lerp(startFOV, originalFOV, t);
             
-            if (redOverlay != null) redOverlay.color = Color.Lerp(redOverlay.color, new Color(1, 1, 1, 0), t);
             if (warningText != null) warningText.alpha = 1f - t;
             if (timerText != null) timerText.alpha = 1f - t;
 
@@ -246,6 +250,5 @@ public class BerserkEffectController : MonoBehaviour
         }
 
         if (warningUI != null) warningUI.SetActive(false);
-        if (portraitImage != null) portraitImage.color = Color.white;
-    }
-}
+        }
+        }
