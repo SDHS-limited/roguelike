@@ -233,5 +233,9 @@ public bool canReviveOnce = false;
             Destroy(suicide);
             TakeDamage(10);
         }
+        if (hit.gameObject.CompareTag("Room"))
+        {
+            TakeDamage(5);
+        }
     }
 }

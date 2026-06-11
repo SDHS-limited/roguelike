@@ -6,6 +6,7 @@ public class BuildBullet : MonoBehaviour
     [SerializeField] private float lifetime = 5f;
     [SerializeField] private float damage = 20f;
     [SerializeField] private GameObject bloodEffectPrefab;
+    [SerializeField] Player player;
 
     private Vector3 _direction;
     private bool _launched;
@@ -29,6 +30,7 @@ public class BuildBullet : MonoBehaviour
         {
             // 플레이어 데미지 처리
             collision.gameObject.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+            player.TakeDamage(5);
 
             // 피 파티클 생성
             if (bloodEffectPrefab != null)
