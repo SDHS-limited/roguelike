@@ -168,16 +168,23 @@ public class BuildingEnemy : MonoBehaviour
 
         GameObject proj = Instantiate(projectilePrefab, muzzle.position, Quaternion.LookRotation(dir));
 
-        // 자신의 콜라이더와 충돌 무시
-        Collider myCol = GetComponent<Collider>();
-        Collider projCol = proj.GetComponent<Collider>();
-        if (myCol != null && projCol != null)
-            Physics.IgnoreCollision(projCol, myCol);
+        // 자신의 본체/자식 콜라이더와 투사체 본체/자식 콜라이더 충돌을 모두 무시
+        Collider[] myCols = GetComponentsInChildren<Collider>();
+        Collider[] projCols = proj.GetComponentsInChildren<Collider>();
+        for (int i = 0; i < myCols.Length; i++)
+        {
+            if (myCols[i] == null) continue;
+            for (int j = 0; j < projCols.Length; j++)
+            {
+                if (projCols[j] == null) continue;
+                Physics.IgnoreCollision(projCols[j], myCols[i]);
+            }
+        }
 
         BuildBullet bullet = proj.GetComponent<BuildBullet>();
         if (bullet != null)
         {
-            bullet.Launch(dir);
+            bullet.Launch(dir, projectileSpeed);
         }
         else
         {

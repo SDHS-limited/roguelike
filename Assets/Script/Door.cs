@@ -7,7 +7,7 @@ using UnityEditor;
 public class Door : MonoBehaviour
 {
     [Header("Detect")]
-    [SerializeField] float detectRange = 3f;
+    [SerializeField] float detectRange = 5f;
     [SerializeField] LayerMask playerMask = ~0;
 
     [Header("Slide Move")]
