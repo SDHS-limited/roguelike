@@ -15,6 +15,9 @@ public class Door : MonoBehaviour
     [SerializeField] float moveSpeed = 3f;
     [SerializeField] Transform moveTarget;
 
+    [Header("Room Clear Settings")]
+    public bool isLocked = true; // 방 클리어 전에는 굳게 닫혀있음
+
     Vector3 closedWorldPosition;
     Vector3 openedWorldPosition;
 
@@ -43,8 +46,6 @@ public class Door : MonoBehaviour
     {
         if (moveTarget == null) moveTarget = transform;
 
-        // Demo2 like scenes can have doors saved as Static.
-        // Clear static flags in editor so static batching does not lock door visuals.
         if (moveTarget != null)
         {
             GameObjectUtility.SetStaticEditorFlags(moveTarget.gameObject, 0);
@@ -58,21 +59,33 @@ public class Door : MonoBehaviour
     }
 #endif
 
+    // 💡 방이 클리어되었을 때 room.cs에서 호출하여 잠금만 해제
+    public void UnlockDoor()
+    {
+        isLocked = false;
+    }
+
     void Update()
     {
         bool playerInRange = false;
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, playerMask);
-        for (int i = 0; i < hits.Length; i++)
+
+        // 🚪 문이 잠겨있지 않을 때(클리어 후)에만 플레이어의 접근을 감지합니다.
+        if (!isLocked)
         {
-            if (hits[i].CompareTag("Player"))
+            Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, playerMask);
+            for (int i = 0; i < hits.Length; i++)
             {
-                //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                playerInRange = true;
-                break;
+                if (hits[i].CompareTag("Player"))
+                {
+                    playerInRange = true;
+                    break;
+                }
             }
         }
 
+        // 플레이어가 범위 내에 있을 때만 openedWorldPosition으로 이동
         Vector3 targetWorldPosition = playerInRange ? openedWorldPosition : closedWorldPosition;
+        
         moveTarget.position = Vector3.MoveTowards(
             moveTarget.position,
             targetWorldPosition,

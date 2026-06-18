@@ -168,7 +168,7 @@
             Effect effects = FindFirstObjectByType<Effect>();
             if (effects != null)
             {
-                effects.TriggerHitStop(0.08f);
+                effects.TriggerHitStop(0.1f);
                 // effects.TriggerCameraShake(0.2f, 0.20f);
             }
 
