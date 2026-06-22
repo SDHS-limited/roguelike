@@ -35873,7 +35873,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainTitle
   startButton: {fileID: 2095136201}
   exitButton: {fileID: 1277454559}
-  gameSceneName: Demo2
+  gameSceneName: Demo
 --- !u!4 &1461914691
 Transform:
   m_ObjectHideFlags: 0
