@@ -1,7 +1,7 @@
 using System.Collections;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -17,12 +17,17 @@ public class Player : MonoBehaviour
     public float healMultiplier = 1.0f;     // Added
     public float feverOnHitMultiplier = 0f; // Added
     public bool isVisionBlurred = false;
-public bool canReviveOnce = false;
+    public bool canReviveOnce = false;
     private bool hasRevived = false;
 
     [Header("Visual Effects")]
     [SerializeField] private PostProcessVolume lowHPVolume; // Added
     [SerializeField] private PostProcessVolume sideEffectVolume;
+
+    [Header("Damage Effect (Post-Processing)")]
+    [SerializeField] private PostProcessVolume postProcessVolume; // 인스펙터에서 볼륨 오브젝트 할당
+    private Vignette vignette;
+    private Coroutine vignetteCoroutine;
 
     [Header("Dash")]
     [SerializeField] float dashDistance = 5f;
@@ -59,9 +64,11 @@ public bool canReviveOnce = false;
         rb = GetComponent<Rigidbody>();
         camOriginPos = cameraHolder.localPosition;
 
-        if (hp == null)
+        // 시작할 때 Volume에서 Vignette 컴포넌트를 찾아옵니다.
+        if (postProcessVolume != null && postProcessVolume.profile.TryGetSettings(out vignette))
         {
-            hp = FindFirstObjectByType<HP_Slider>();
+            vignette.intensity.value = 0f; // 평소에는 테두리가 보이지 않게 0으로 초기화
+            vignette.color.value = Color.red; // 비네트 색상을 빨간색으로 고정
         }
     }
 
@@ -216,20 +223,7 @@ public bool canReviveOnce = false;
     }
     public void TakeDamage(float amount)
     {
-        if (hp == null)
-        {
-            hp = FindFirstObjectByType<HP_Slider>();
-        }
-
-        if (hp != null)
-        {
-            hp.TakeDamage(amount);
-        }
-        else
-        {
-            Debug.LogWarning("[Player] HP_Slider 참조가 없어 데미지를 적용할 수 없습니다.");
-        }
-
+        if (hp != null) hp.TakeDamage(amount);
         Debug.Log("응애");
         
         Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
@@ -237,23 +231,53 @@ public bool canReviveOnce = false;
         {
             fever.AddFever(amount * feverOnHitMultiplier);
         }
+    }
+
+    private void TriggerDamageVignette()
+    {
+        if (vignette == null) return; // 컴포넌트를 못 찾았으면 에러 방지
+
+        // 이미 피격 효과가 재생 중이라면 멈추고 새로 시작 (연속으로 맞았을 때 대응)
+        if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
+        vignetteCoroutine = StartCoroutine(VignetteFlash());
+    }
+
+    private IEnumerator VignetteFlash()
+    {
+        // 1. 피격 즉시 화면 테두리를 강하게 빨갛게 덮음 (수치는 0.5 ~ 0.6 추천)
+        vignette.intensity.value = 0.6f;
+
+        // 2. 0.1초 동안 붉은 화면 유지 (찰나의 순간)
+        yield return new WaitForSeconds(0.1f);
+
+        // 3. 0.5초 동안 서서히 원래대로(투명하게) 돌아옴
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            // 0.6에서 0으로 서서히 값이 떨어짐
+            vignette.intensity.value = Mathf.Lerp(0.6f, 0f, elapsed / duration);
+            yield return null;
         }
+
+        // 4. 완전히 깔끔하게 0으로 리셋
+        vignette.intensity.value = 0f;
+    }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Enemy"))
         {
             TakeDamage(1);
+            TriggerDamageVignette();
         }
         if (hit.gameObject.CompareTag("suicide"))
         {
             //폭발 파티클 추가
             Destroy(suicide);
             TakeDamage(10);
-        }
-        if (hit.gameObject.CompareTag("Room"))
-        {
-            TakeDamage(5);
         }
     }
 }

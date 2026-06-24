@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class room : MonoBehaviour
     {
-        [SerializeField] private Text clearText;
+        [SerializeField] private TextMeshProUGUI clearText;
         [SerializeField] private string fulltext = "Room Clear";    
 
         [Header("Detection Settings")]
