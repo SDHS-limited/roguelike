@@ -159,7 +159,7 @@ public class Gun : MonoBehaviour
         GunObject.transform.localRotation = startRot;
     }
     [Header("Juice")]
-    [SerializeField] ParticleSystem muzzleFlash;
+    [SerializeField] GameObject muzzleFlash;
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip fireSound;
     [SerializeField] AudioClip reloadSound;
@@ -169,8 +169,8 @@ public class Gun : MonoBehaviour
         currentammo--;
         if (muzzleFlash != null)
         {
-            muzzleFlash.Stop();
-            muzzleFlash.Play();
+            muzzleFlash.SetActive(false);
+            muzzleFlash.SetActive(true);
         }
         if (audioSource != null && fireSound != null) audioSource.PlayOneShot(fireSound);
         
@@ -203,7 +203,7 @@ public class Gun : MonoBehaviour
             }
         }
 
-        if (effects != null) effects.TriggerCameraShake(0.1f, 0.15f);
+        if (effects != null) effects.TriggerCameraShake(0.1f, 0.2f);
         recoil.Fire();
     }
 }
