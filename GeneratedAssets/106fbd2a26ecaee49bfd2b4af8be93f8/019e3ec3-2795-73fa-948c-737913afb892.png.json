@@ -1,0 +1,38 @@
+{
+  "asset": "106fbd2a26ecaee49bfd2b4af8be93f8",
+  "fileName": "019e3ec3-2795-73fa-948c-737913afb892.png",
+  "prompt": "A flying demonic drone for a dark sci-fi game, rectangular dark metallic body, two sharp red demonic horns on top, a large circular glowing core in the center acting as a gun barrel, organic veins and biological tissue integrated with mechanical parts, gritty dark fantasy aesthetic, full body view, head to toe, white background, isometric perspective.",
+  "negativePrompt": "",
+  "model": "flux-2-dev",
+  "modelName": "Flux 2 (Dev)",
+  "customSeed": -1,
+  "w3CTraceId": "",
+  "feedback": -1,
+  "refinementMode": "Generation",
+  "pixelateTargetSize": 0,
+  "pixelateKeepImageSize": false,
+  "pixelatePixelBlockSize": 0,
+  "pixelatePixelGridSize": 0,
+  "pixelateMode": 0,
+  "pixelateOutlineThickness": 0,
+  "doodles": {
+    "m_Items": [
+      {
+        "doodleReferenceType": 7,
+        "doodle": [],
+        "label": "Image",
+        "strength": 0.25,
+        "invertStrength": false,
+        "assetReferenceGuid": "8d24f2d6ec7f1dc49a9a15277d96a1da",
+        "unlabeledIndex": -1
+      }
+    ]
+  },
+  "upscaleFactor": 0,
+  "dimensions": {
+    "width": 1024,
+    "height": 1024
+  },
+  "spriteSheet": false,
+  "duration": 0.0
+}

@@ -1,0 +1,12 @@
+{
+    "asset": "b8d9b971c3775fe4280cba5da8bf20e9",
+    "fileName": "019e3e79-d736-7962-acb7-ff7771ae23b5_Preview.jpg",
+    "prompt": "Seamless tileable texture of a laboratory floor, reinforced industrial metal plating, anti-slip grid pattern, dark and gritty sci-fi aesthetic, subtle scuff marks and oil stains, high detail, 4k resolution style.",
+    "negativePrompt": "",
+    "model": "realistic-textures-3-0",
+    "modelName": "Realistic Textures 3.0",
+    "customSeed": 641064576,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation"
+}

@@ -1,0 +1,23 @@
+{
+    "asset": "01e6955f63f02d346b1cf0b0e46a14a5",
+    "fileName": "019e3e7f-bd73-7b00-b978-4158a55393fa.glb",
+    "prompt": "A dark industrial server rack with blinking LED lights and thick messy wires, sci-fi laboratory computer equipment, gritty aesthetic.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "1249b2f77215afc4a8e47e879862a8a3",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}
