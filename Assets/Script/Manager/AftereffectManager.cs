@@ -1,8 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AftereffectManager : MonoBehaviour
 {
+    //폭주 게이지
     [SerializeField] private Fever_Slider feverSlider;
     [SerializeField] private Player player;
     [SerializeField] private Move move;
@@ -16,6 +18,8 @@ public class AftereffectManager : MonoBehaviour
     private float nextTriggerTime;
 
     private bool isBerserk = false;
+    public bool hasSacredExplosion = false; // ID 11
+    public int extraSideEffectsOnEnd = 0;   // ID 13
 
     void Start()
     {
@@ -32,6 +36,12 @@ public class AftereffectManager : MonoBehaviour
         
         // Recoil 등에 수치 전달
         if (recoil != null) recoil.feverRatio = ratio;
+
+        // --- 폭주 예고 연출 (80% / 90% 단계) ---
+        if (!isBerserk && berserkEffectController != null)
+        {
+            berserkEffectController.SetGaugeEffects(ratio);
+        }
 
         if (isBerserk) return;
 
@@ -114,51 +124,147 @@ public class AftereffectManager : MonoBehaviour
     {
         if (isBerserk) return;
         isBerserk = true;
+        
+        // Berserk count increase for SideEffect system
+        if (SideEffectManager.Instance != null) SideEffectManager.Instance.IncrementBerserkCount();
+
         StartCoroutine(BerserkRoutine());
     }
 
+    [Header("Berserk Visuals")]
+    [SerializeField] private BerserkEffectController berserkEffectController;
+    [SerializeField] private float berserkDuration = 25f;
+
     private IEnumerator BerserkRoutine()
     {
-        Debug.Log("BERSERK MODE ACTIVATED!");
+        Debug.Log("!!! BERSERK MODE ACTIVATED !!!");
         
-        // 1. 능력치 대폭 강화 (플레이어 데미지 등)
-        float originalPlayerDamage = player.damage;
-        player.damage *= 2f;
+        // Fever Slider Pulse
+        FeverSliderPulse fPulse = feverSlider.GetComponent<FeverSliderPulse>();
+        if (fPulse == null) fPulse = feverSlider.gameObject.AddComponent<FeverSliderPulse>();
+        fPulse.SetPulse(true);
+
+        // --- 🎬 1. 시작 단계 (Start Phase) ---
+        if (berserkEffectController != null) berserkEffectController.StartBerserkEffects(berserkDuration);
         
-        // 2. 무한 탄약 및 자동 발사 설정
+        // 긍정적 효과: 체력 회복 (시작 시 30% 회복)
+        if (player.GetComponentInChildren<HP_Slider>() != null)
+        {
+            HP_Slider hp = player.GetComponentInChildren<HP_Slider>();
+            hp.curHP = Mathf.Min(hp.maxHp, hp.curHP + (hp.maxHp * 0.3f));
+        }
+
+        // --- ⚔ 2. 진행 중 단계 (Active Phase) ---
+        // 능력치 강화 및 무기 설정
+        float originalPlayerDamageMultiplier = player.attackPowerMultiplier;
+        player.attackPowerMultiplier *= 3.0f; // 공격력 3배로 상향
         gun.SendMessage("SetBerserk", true, SendMessageOptions.DontRequireReceiver);
+        
+        if (recoil != null) recoil.isBerserk = true; // 반동 감소 활성화
+
+        // 부정적 효과: 입력 과민 반응 (속도 및 가속도 대폭 증가)
+        float originalWalkSpeed = move.walkSpeed;
+        float originalRunSpeed = move.runSpeed;
+        float originalAccel = move.acceleration;
+        float originalPlayerSpeed = player.speed;
+
+        // 속도 조정 (기존 3.5배에서 피드백을 반영하여 약 2.5배 수준으로 하향 조정)
+        move.walkSpeed = originalWalkSpeed * 2.0f; 
+        move.runSpeed = originalRunSpeed * 1.8f;
+        move.acceleration *= 4.0f;
+        player.speed *= 2.0f; 
+
+        Debug.Log($"[Berserk] Adjusted Balance: AttackMult={player.attackPowerMultiplier}, Speed={move.walkSpeed}");
 
         float elapsed = 0f;
-        float duration = 10f;
-
-        while (elapsed < duration)
+        Effect effects = FindFirstObjectByType<Effect>();
+        
+        while (elapsed < berserkDuration)
         {
             elapsed += Time.deltaTime;
             
-            // 시점 강제 흔들림
-            ApplyTwitch(2f);
-            
-            // 체력 조금씩 감소 (폭주의 대가)
-            if (elapsed % 1.0f < Time.deltaTime)
+            // UI Timer Update
+            if (berserkEffectController != null) berserkEffectController.UpdateTimer(berserkDuration - elapsed);
+
+            // 카메라 및 조준 흔들림
+            if (recoil != null)
             {
-                // Player.cs에 TakeDamage가 없을 수 있으므로 HP_Slider 등을 직접 참조하는 것이 안전할 수 있음
-                // 하지만 기존 Player.cs를 보면 hp.TakeDamage(1)를 호출하는 부분이 있음.
-                player.SendMessage("TakeDamage", 1, SendMessageOptions.DontRequireReceiver);
+                // Active Phase 연출: 카메라 흔들림과 조준 흔들림
+                recoil.SetJitter(Random.Range(2.5f, 5.5f));
+                if (elapsed % 0.15f < Time.deltaTime) 
+                {
+                    recoil.ApplyTwitch(Random.Range(2.5f, 4.5f));
+                    if (effects != null) effects.TriggerCameraShake(0.2f, 0.3f);
+                }
+            }
+
+            // 폭주의 대가: 체력 지속 감소
+            if (elapsed % 0.5f < Time.deltaTime)
+            {
+                player.TakeDamage(1.5f);
+            }
+
+            // ID 11: 신성 폭발 (폭주 시 주변 적에게 범위 피해 발생)
+            if (hasSacredExplosion && elapsed % 1.0f < Time.deltaTime)
+            {
+                TriggerSacredExplosion();
             }
 
             yield return null;
-        }
+}
         
-        // 원상 복구
-        player.damage = originalPlayerDamage;
-        gun.SendMessage("SetBerserk", false, SendMessageOptions.DontRequireReceiver);
-        
-        isBerserk = false;
-        feverSlider.ResetFever(0.5f); // 50%로 리셋
-    }
+        // --- ☠ 3. 종료 단계 (End Phase) ---
+        if (berserkEffectController != null) berserkEffectController.EndBerserkEffects();
 
-    #region 기존 코드 호환용
-    public IEnumerator SpeedDown()
+        // ID 11: 폭주 종료 후 체력 추가 감소
+        if (hasSacredExplosion) player.TakeDamage(10f);
+
+        // 원상 복구
+player.attackPowerMultiplier = originalPlayerDamageMultiplier;
+        move.walkSpeed = originalWalkSpeed;
+        move.runSpeed = originalRunSpeed;
+        move.acceleration = originalAccel;
+        player.speed = originalPlayerSpeed;
+        
+        gun.SendMessage("SetBerserk", false, SendMessageOptions.DontRequireReceiver);
+        if (recoil != null) recoil.isBerserk = false;
+        
+        if (fPulse != null) fPulse.SetPulse(false);
+
+        // Add side effects after Berserk ends
+        if (SideEffectManager.Instance != null)
+        {
+            SideEffectManager.Instance.AddRandomSideEffect();
+            for (int i = 0; i < extraSideEffectsOnEnd; i++)
+            {
+                SideEffectManager.Instance.AddRandomSideEffect();
+            }
+        }
+        extraSideEffectsOnEnd = 0; // Reset after use
+
+        isBerserk = false;
+feverSlider.ResetFever(0.5f); // 50%로 리셋
+        Debug.Log("Berserk Mode Ended. Fever reset to 50%.");
+        }
+
+        private void TriggerSacredExplosion()
+        {
+        Debug.Log("[EXPERIMENT] Sacred Explosion Triggered!");
+        Collider[] hits = Physics.OverlapSphere(player.transform.position, 8f);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Enemy"))
+            {
+                Enemy enemy = hit.GetComponent<Enemy>();
+                if (enemy != null) enemy.TakeDamage(15f);
+            }
+        }
+        Effect effects = FindFirstObjectByType<Effect>();
+        if (effects != null) effects.TriggerCameraShake(0.15f, 0.2f);
+        }
+
+        #region 기존 코드 호환용
+public IEnumerator SpeedDown()
     {
         player.speed = 2f;
         yield return new WaitForSeconds(10f);
@@ -167,9 +273,9 @@ public class AftereffectManager : MonoBehaviour
 
     public IEnumerator PainDamage()
     {
-        player.damage = 20;
+        player.attackPowerMultiplier = 2.0f;
         yield return new WaitForSeconds(10f);
-        player.damage = 10;
+        player.attackPowerMultiplier = 1.0f;
     }
-    #endregion
+#endregion
 }

@@ -155,6 +155,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildBullet
   speed: 30
-  damage: 20
   lifetime: 5
-  hp: {fileID: 0}
+  damage: 3
+  bloodEffectPrefab: {fileID: 6156677834887121033, guid: 974ce8ec5a7cd6c4b849d4094ba01146, type: 3}

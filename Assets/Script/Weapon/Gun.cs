@@ -22,6 +22,10 @@ public class Gun : MonoBehaviour
     [SerializeField] TMP_Text ammo;
     [SerializeField] Reload_Slider reload_Slider;
     [SerializeField] Recoil recoil;
+    [SerializeField] Effect effect;
+
+    public float fireRateMultiplier = 1.0f;
+    public float reloadSpeedMultiplier = 1.0f;
 
     void Start()
     {
@@ -61,34 +65,73 @@ public class Gun : MonoBehaviour
         if (isBerserk)
         {
             currentammo = 7; // 무한 탄약
-            berserkFireTimer -= Time.deltaTime;
-            if (berserkFireTimer <= 0)
+            HandleBerserkFiring();
+        }
+        else
+        {
+            if (Input.GetMouseButton(0))
             {
+                if(currentammo <= 0 || isJamming) return;
+                if (!recoil.CanFire) return;
+
                 Shoot();
-                berserkFireTimer = 0.1f; // 폭주 시 연사 속도
+                // audioSource.PlayOneShot(fire);
             }
-            return;
-        }
+            
 
-        if (Input.GetMouseButton(0))
-        {
-            if(currentammo <= 0 || isJamming) return;
-            if (!recoil.CanFire) return;
-
-            Shoot();
-            // audioSource.PlayOneShot(fire);
+            if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
+            {
+                if (!recoil.CanFire || isJamming) return;
+                currentammo = 7;
+                StartCoroutine(reload_Slider.FillRoutine());
+                StartCoroutine(ReloadAnim());
+            }
         }
+    }
+
+    private int burstCount = 0;
+    private void HandleBerserkFiring()
+    {
+        berserkFireTimer -= Time.deltaTime;
         
-
-        if (Input.GetKeyDown(KeyCode.R) || currentammo <= 0)
+        if (berserkFireTimer <= 0)
         {
-            if (!recoil.CanFire || isJamming) return;
-            currentammo = 7;
-            StartCoroutine(reload_Slider.FillRoutine());
-            StartCoroutine(ReloadAnim());
-        }
+            // 폭주 상태의 불안정한 발사 로직
+            float randomRoll = UnityEngine.Random.value;
 
-
+            if (burstCount > 0)
+            {
+                // 버스트(멋대로 연사) 중일 때는 매우 빠르게 발사 (약간 하향: 0.05f -> 0.08f)
+                Shoot();
+                berserkFireTimer = 0.08f; 
+                burstCount--;
+                
+                // 버스트 중에는 반동 지터를 더 강하게 줌
+                if (recoil != null) recoil.SetJitter(UnityEngine.Random.Range(2f, 4f));
+            }
+            else if (randomRoll < 0.20f) 
+            {
+                // 20% 확률로 2~3발 멋대로 폭발적 발사 (버스트 시작)
+                burstCount = UnityEngine.Random.Range(2, 4);
+                Shoot();
+                berserkFireTimer = 0.08f;
+            }
+            else if (randomRoll < 0.40f)
+            {
+                // 20% 확률로 총이 일시적으로 잘 안나감 (스타터/딜레이)
+                // 발사하지 않고 타이머만 길게 설정
+                berserkFireTimer = UnityEngine.Random.Range(0.5f, 1.2f);
+                
+                // 틱틱 거리는 소리나 효과를 주면 더 좋음
+                if (audioSource != null && reloadSound != null) audioSource.PlayOneShot(reloadSound, 0.5f);
+            }
+            else
+            {
+                // 일반적인 폭주 발사 (약간 하향: 0.1~0.2 -> 0.15~0.25)
+                Shoot();
+                berserkFireTimer = UnityEngine.Random.Range(0.15f, 0.25f);
+            }
+}
     }
     
 
@@ -96,6 +139,7 @@ public class Gun : MonoBehaviour
     // 총 회전 하면서 장전 모션
     IEnumerator ReloadAnim()
     {
+        if (audioSource != null && reloadSound != null) audioSource.PlayOneShot(reloadSound);
         float rotated = 0f;
         float speed = reloadAngle / reloadTime;
 
@@ -114,12 +158,54 @@ public class Gun : MonoBehaviour
         // 원래 회전값으로 복귀
         GunObject.transform.localRotation = startRot;
     }
+    [Header("Juice")]
+    [SerializeField] GameObject muzzleFlash;
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip fireSound;
+    [SerializeField] AudioClip reloadSound;
+
     void Shoot()
     {
         currentammo--;
-        Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        if (muzzleFlash != null)
+        {
+            muzzleFlash.SetActive(false);
+            muzzleFlash.SetActive(true);
+        }
+        if (audioSource != null && fireSound != null) audioSource.PlayOneShot(fireSound);
+        
+        Effect effects = FindFirstObjectByType<Effect>();
+        
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        
+        // Apply player attack multiplier and critical hit to bullet
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            Player p = GetComponentInParent<Player>();
+            if (p == null) p = GetComponent<Player>(); 
+            if (p != null)
+            {
+                float damageMult = p.attackPowerMultiplier;
+                
+                // ID 8: 생존 본능 자극 (체력 낮을수록 공격력 증가 - 최대 7%)
+                float hpRatio = (p.GetComponent<HP_Slider>() != null) ? p.GetComponent<HP_Slider>().curHP / p.GetComponent<HP_Slider>().maxHp : 1f;
+                if (hpRatio < 0.5f) damageMult += 0.07f * (1f - hpRatio * 2f);
+
+                // Critical Hit
+                if (UnityEngine.Random.value < p.criticalChance)
+                {
+                    damageMult *= 2.0f; // Critical damage 2x
+                    Debug.Log("CRITICAL HIT!");
+                }
+                
+                bulletScript.Initialize(damageMult);
+            }
+        }
+
+        if (effects != null) effects.TriggerCameraShake(0.1f, 0.2f);
         recoil.Fire();
-    }   
+    }
 }
 
 

@@ -22,9 +22,18 @@ public class Move : MonoBehaviour
     public float standHeight = 2.0f;
     public float crouchTransitionSpeed = 8f;
 
-    [Header("Bob")]
-    public float bobFrequency = 2.2f;
-    public float bobAmplitude = 0.05f;
+    [Header("Dash Settings")]
+    public float dashSpeed = 20f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+
+    [Header("Force Reboot Head Bob")]
+    [SerializeField] private float bobVerticalAmplitude = 0.04f;
+    [SerializeField] private float bobHorizontalAmplitude = 0.02f;
+    [SerializeField] private float bobTiltAngle = 1.5f;
+    [SerializeField] private float bobFrequency = 12f;
+    [SerializeField] private float landPunchAmplitude = 0.15f;
+    [SerializeField] private float landPunchSmoothing = 15f;
 
     public HP_Slider hp;
     private CharacterController controller;
@@ -33,48 +42,83 @@ public class Move : MonoBehaviour
     private bool isGrounded;
     private bool isCrouching;
     private bool isRunning;
+    
     private float bobTimer;
+    private float currentLandPunch;
+    private bool wasGrounded;
     [SerializeField] Camera playerCamera;
+    private CameraRot camRotComp;
     private float targetHeight;
     private float originalCameraY;
+    private float currentCameraY;
 
-    // 추가: 바닥에서 띄울 높이 오프셋 (요청하신 0.17 반영)
+    private float dashTimeLeft;
+    private float dashCooldownTimer;
+    private bool isDashing;
+    private Vector3 dashDirection;
+
     private readonly float yOffset = 0.4f;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera == null) playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera != null) camRotComp = playerCamera.GetComponent<CameraRot>();
         
-        // 초기 높이 설정 (standHeight로 시작)
+        if (controller != null) 
+        {
+            controller.stepOffset = 0.2f; 
+        }
+
         targetHeight = standHeight;
         controller.height = standHeight;
         
-        // 초기 위치 강제 설정
         transform.position = new Vector3(transform.position.x, yOffset, transform.position.z);
-        
         originalCameraY = playerCamera.transform.localPosition.y;
+        currentCameraY = originalCameraY; 
         
-        // 초기 Center 설정
         UpdateControllerCenter();
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("suicide") || hit.gameObject.CompareTag("BuildingEnemy"))
+        {
+            if (verticalVelocity > 0) verticalVelocity = 0;
+
+            if (hit.normal.y > 0.7f)
+            {
+                verticalVelocity = -5f;
+            }
+        }
     }
 
     void Update()
     {
         CheckGround();
-        HandleCrouch();
         HandleMovement();
         HandleJump();
         ApplyGravity();
-        ApplyHeadBob();
+        HandleCrouch(); 
+        HandleDash(); 
+        
+        Vector3 finalMove;
+        if (isDashing)
+        {
+            finalMove = dashDirection * dashSpeed;
+        }
+        else
+        {
+            finalMove = moveVelocity + Vector3.up * verticalVelocity;
+        }
 
-        // 최종 이동 적용
-        controller.Move((moveVelocity + Vector3.up * verticalVelocity) * Time.deltaTime);
+        controller.Move(finalMove * Time.deltaTime);
+
+        ApplyForceRebootHeadBob();
     }
 
     void CheckGround()
     {
-        // 0.17 위치에서 아래로 살짝 내린 지점에서 체크
         Vector3 spherePos = transform.position + Vector3.up * (yOffset - groundCheckRadius);
         isGrounded = Physics.CheckSphere(spherePos, groundCheckRadius, groundLayer);
 
@@ -90,7 +134,7 @@ public class Move : MonoBehaviour
         Vector3 inputDir = transform.right * h + transform.forward * v;
         if (inputDir.magnitude > 1f) inputDir.Normalize();
 
-        isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0.1f && !isCrouching;
+        isRunning = Input.GetKey(KeyCode.LeftShift) && v > 0.1f && !isCrouching && !isDashing;
 
         float targetSpeed = isCrouching ? crouchSpeed : isRunning ? runSpeed : walkSpeed;
         Vector3 targetVelocity = inputDir * targetSpeed;
@@ -102,12 +146,45 @@ public class Move : MonoBehaviour
         moveVelocity = Vector3.Lerp(moveVelocity, targetVelocity, accel * Time.deltaTime);
     }
 
+    void HandleDash()
+    {
+        if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0 && !isDashing && !isCrouching)
+        {
+            float h = Input.GetAxisRaw("Horizontal");
+            float v = Input.GetAxisRaw("Vertical");
+            
+            if (h == 0 && v == 0)
+            {
+                dashDirection = transform.forward;
+            }
+            else
+            {
+                dashDirection = (transform.right * h + transform.forward * v).normalized;
+            }
+
+            isDashing = true;
+            dashTimeLeft = dashDuration;
+            dashCooldownTimer = dashCooldown;
+
+            Effect effects = FindFirstObjectByType<Effect>();
+            if (effects != null) effects.TriggerCameraShake(0.1f, 0.05f);
+        }
+
+        if (isDashing)
+        {
+            dashTimeLeft -= Time.deltaTime;
+            if (dashTimeLeft <= 0)
+            {
+                isDashing = false;
+            }
+        }
+    }
+
     void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
-        }
+        // Jump logic can be added here if needed
     }
 
     void ApplyGravity()
@@ -121,62 +198,78 @@ public class Move : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl)) isCrouching = true;
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            // 머리 위 체크
             if (!Physics.SphereCast(transform.position + Vector3.up * yOffset, 0.4f, Vector3.up, out _, standHeight - crouchHeight))    
                 isCrouching = false;
         }
 
         targetHeight = isCrouching ? crouchHeight : standHeight;
-
-        // 높이 부드럽게 전환
         controller.height = Mathf.Lerp(controller.height, targetHeight, crouchTransitionSpeed * Time.deltaTime);
         
-        // 중요: 높이가 변할 때마다 Center도 같이 업데이트
         UpdateControllerCenter();
 
-        // 카메라 이동
         float targetCamY = isCrouching ? originalCameraY - (standHeight - crouchHeight) * 0.5f : originalCameraY;
-        Vector3 camPos = playerCamera.transform.localPosition;
-        camPos.y = Mathf.Lerp(camPos.y, targetCamY, crouchTransitionSpeed * Time.deltaTime);
-        playerCamera.transform.localPosition = camPos;
+        currentCameraY = Mathf.Lerp(currentCameraY, targetCamY, crouchTransitionSpeed * Time.deltaTime);
     }
 
-    // CharacterController의 중심점을 보정하는 함수
     void UpdateControllerCenter()
     {
-        // Pivot이 중앙에 있다면: Center.y = (Height / 2) - Offset을 해주어야 
-        // 캐릭터의 Transform 위치가 항상 바닥에서 Offset(0.17)만큼 뜬 상태가 됩니다.
         controller.center = new Vector3(0, (controller.height / 2f) - yOffset, 0);
     }
 
-    void ApplyHeadBob()
+    void ApplyForceRebootHeadBob()
     {
-        if (!isGrounded) return;
-        float speed = moveVelocity.magnitude;
-        if (speed > 0.1f)
+        if (playerCamera == null) return;
+
+        // 1. Landing Punch detection
+        if (isGrounded && !wasGrounded)
         {
-            bobTimer += Time.deltaTime * bobFrequency * (isRunning ? 1.5f : 1f);
-            float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude * (speed / walkSpeed);
-            Vector3 camPos = playerCamera.transform.localPosition;
-            camPos.y += bobOffset;
-            playerCamera.transform.localPosition = camPos;
+            currentLandPunch = landPunchAmplitude;
         }
-        else { bobTimer = 0; }
+        wasGrounded = isGrounded;
+
+        // Recover from land punch
+        currentLandPunch = Mathf.Lerp(currentLandPunch, 0f, Time.deltaTime * landPunchSmoothing);
+
+        // 2. Velocity-based Head Bob
+        Vector3 horizontalVelocity = new Vector3(controller.velocity.x, 0, controller.velocity.z);
+        float speed = horizontalVelocity.magnitude;
+        float hInput = Input.GetAxisRaw("Horizontal");
+
+        Vector3 targetPos = new Vector3(0, currentCameraY - currentLandPunch, 0);
+        Quaternion targetRot = Quaternion.identity;
+
+        if (isGrounded && speed > 0.1f)
+        {
+            float freq = isRunning ? bobFrequency * 1.3f : bobFrequency;
+            bobTimer += Time.deltaTime * freq;
+
+            float bobY = Mathf.Sin(bobTimer) * bobVerticalAmplitude;
+            float bobX = Mathf.Cos(bobTimer * 0.5f) * bobHorizontalAmplitude;
+            
+            targetPos += new Vector3(bobX, bobY, 0);
+
+            float tilt = -hInput * bobTiltAngle;
+            tilt += Mathf.Sin(bobTimer * 0.5f) * (bobTiltAngle * 0.5f);
+            targetRot = Quaternion.Euler(0, 0, tilt);
+        }
+        else
+        {
+            bobTimer = Mathf.Lerp(bobTimer, 0, Time.deltaTime * 5f);
+        }
+
+        playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, targetPos, Time.deltaTime * 10f);
+
+        if (camRotComp != null)
+        {
+            camRotComp.proceduralRotation = Quaternion.Slerp(camRotComp.proceduralRotation, targetRot, Time.deltaTime * 10f);
+        }
     }
 
     public bool IsGrounded => isGrounded;
+    public bool IsDashing => isDashing;
 
     public void ApplyStagger(Vector3 force)
     {
         moveVelocity += force;
     }
-   
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Enemy"))
-    //    {
-    //        hp.curHP -= 10 ;
-    //    }
-    //}
 }

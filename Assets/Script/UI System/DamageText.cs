@@ -10,7 +10,8 @@ public class DamageText : MonoBehaviour
 
     private TextMeshProUGUI text;
     private Color color;
-    private Vector3 startPos;
+    private Vector3 initialLocalPos;
+    private Camera mainCamera;
 
     private float timer;
     private bool isPlaying = false;
@@ -18,7 +19,9 @@ public class DamageText : MonoBehaviour
     void Awake()
     {
         text = GetComponent<TextMeshProUGUI>();
-        color = text.color;
+        if (text != null) color = text.color;
+        initialLocalPos = transform.localPosition;
+        mainCamera = Camera.main;
     }
 
     void Update()
@@ -26,39 +29,51 @@ public class DamageText : MonoBehaviour
         if (!isPlaying)
             return;
 
-        // 위로 이동
-        transform.position += Vector3.up * moveSpeed * Time.deltaTime;
+        // Move upward in local space to follow the parent (Enemy)
+        transform.localPosition += Vector3.up * moveSpeed * Time.deltaTime;
 
-        // 시간 증가
+        // Always face the camera
+        if (mainCamera != null)
+        {
+            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
+                             mainCamera.transform.rotation * Vector3.up);
+        }
+
+        // Timer
         timer += Time.deltaTime;
 
-        // 점점 투명하게
-        color.a = Mathf.Lerp(1f, 0f, timer / lifeTime);
-        text.color = color;
+        // Fade out
+        if (text != null)
+        {
+            color.a = Mathf.Lerp(1f, 0f, timer / lifeTime);
+            text.color = color;
+        }
+
         if (timer >= lifeTime)
         {
             isPlaying = false;
-
             timer = 0f;
-
-            transform.position = startPos;
+            transform.localPosition = initialLocalPos;
         }
     }
 
     public void SetDamage(int damage)
     {
+        if (text == null) text = GetComponent<TextMeshProUGUI>();
+        if (text == null) return;
+
         text.text = damage.ToString();
 
-        // 현재 위치를 시작 위치로 저장
-        startPos = transform.position;
+        // Reset to initial local position to follow the enemy head
+        transform.localPosition = initialLocalPos;
 
-        // 초기화
+        // Initialize
         timer = 0f;
-
+        if (color == default) color = text.color;
         color.a = 1f;
         text.color = color;
 
-        // 실행 시작
+        // Start playing
         isPlaying = true;
     }
 }

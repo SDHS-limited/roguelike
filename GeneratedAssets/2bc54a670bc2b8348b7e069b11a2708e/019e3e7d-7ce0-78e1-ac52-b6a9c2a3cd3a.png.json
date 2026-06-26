@@ -1,0 +1,28 @@
+{
+    "asset": "2bc54a670bc2b8348b7e069b11a2708e",
+    "fileName": "019e3e7d-7ce0-78e1-ac52-b6a9c2a3cd3a.png",
+    "prompt": "Concept art of a vertical sci-fi bio-experiment culture tube, head-to-toe full view, cylindrical glass, glowing liquid inside, metallic industrial base, white background, isometric view.",
+    "negativePrompt": "",
+    "model": "flux-2-dev",
+    "modelName": "Flux 2 (Dev)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0
+}

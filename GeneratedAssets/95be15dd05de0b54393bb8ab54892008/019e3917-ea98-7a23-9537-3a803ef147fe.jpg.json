@@ -1,0 +1,28 @@
+{
+    "asset": "95be15dd05de0b54393bb8ab54892008",
+    "fileName": "019e3917-ea98-7a23-9537-3a803ef147fe.jpg",
+    "prompt": "A sinister demon inquisitor scientist in a dark, bio-punk laboratory. The demon has curved horns with metal rings, eyes replaced by multiple glowing red camera lenses, and wears a blood-stained leather apron over a tattered lab coat. One arm is a massive mechanical prosthetic with integrated surgical saws and glowing tubes filled with golden celestial ichor. Background features high-tech demonic torture devices and a containment tube with faint angel wings visible inside. Dark fantasy, industrial, cinematic lighting, high detail.",
+    "negativePrompt": "",
+    "model": "flux-2-pro",
+    "modelName": "Flux 2 (Pro)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0
+}

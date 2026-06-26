@@ -1,0 +1,28 @@
+{
+    "asset": "bdd7490b1cd9581438f8b66f8478ff17",
+    "fileName": "019e391d-f4b9-76c2-8318-4de752bf5d32.png",
+    "prompt": "Cracked glass overlay with golden celestial light leaking through the cracks. The cracks should be sharp and detailed. Transparent background. Dark fantasy aesthetic. High resolution game asset. 1024x1024.",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0
+}

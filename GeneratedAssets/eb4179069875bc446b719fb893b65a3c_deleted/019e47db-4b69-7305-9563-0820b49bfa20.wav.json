@@ -1,0 +1,15 @@
+{
+    "asset": "eb4179069875bc446b719fb893b65a3c",
+    "fileName": "019e47db-4b69-7305-9563-0820b49bfa20.wav",
+    "prompt": "handgun reload mechanical click slide sound effect",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

@@ -1,0 +1,23 @@
+{
+    "asset": "d804c6fd15196794b808f23fabd94bc9",
+    "fileName": "019e3e7f-fcb3-7d84-a855-5de5cec044f6.glb",
+    "prompt": "A vertical cylindrical glass culture tube for bio-experiments, metallic base and top, sci-fi laboratory equipment, dark fantasy aesthetic.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "2bc54a670bc2b8348b7e069b11a2708e",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

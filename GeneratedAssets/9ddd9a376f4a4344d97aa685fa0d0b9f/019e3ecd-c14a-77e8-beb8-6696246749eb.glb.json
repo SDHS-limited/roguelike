@@ -1,0 +1,23 @@
+{
+    "asset": "9ddd9a376f4a4344d97aa685fa0d0b9f",
+    "fileName": "019e3ecd-c14a-77e8-beb8-6696246749eb.glb",
+    "prompt": "A flying demonic drone for a dark sci-fi game, rectangular dark metallic body, two sharp red demonic horns on top, a large circular glowing core in the center acting as a gun barrel, organic veins and biological tissue integrated with mechanical parts, gritty dark fantasy aesthetic.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "106fbd2a26ecaee49bfd2b4af8be93f8",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

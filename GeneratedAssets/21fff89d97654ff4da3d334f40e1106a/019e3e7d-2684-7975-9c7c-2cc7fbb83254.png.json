@@ -1,0 +1,28 @@
+{
+    "asset": "21fff89d97654ff4da3d334f40e1106a",
+    "fileName": "019e3e7d-2684-7975-9c7c-2cc7fbb83254.png",
+    "prompt": "Concept art of a sci-fi medical operating table, head-to-toe full view, mechanical arms, surgical tools, dark metallic industrial design, white background, isometric view.",
+    "negativePrompt": "",
+    "model": "flux-2-dev",
+    "modelName": "Flux 2 (Dev)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0
+}

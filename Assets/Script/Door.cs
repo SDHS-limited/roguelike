@@ -1,48 +1,101 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Door : MonoBehaviour
 {
-    [Header("¼³Á¤")]
-    public float openAngle = 90f;   // ¿­¸®´Â °¢µµ
-    public float openSpeed = 2f;    // ¿­¸®´Â ¼Óµµ
+    [Header("Detect")]
+    [SerializeField] float detectRange = 5f;
+    [SerializeField] LayerMask playerMask = ~0;
 
-    private bool isLeftOpen;        // ³»ºÎÀûÀ¸·Î ¹æÇâÀ» ÆÇ´ÜÇÒ º¯¼ö
-    private bool isOpening = false;
-    private Quaternion targetRotation;
-    private Quaternion closedRotation;
+    [Header("Slide Move")]
+    [SerializeField] Vector2 moveOffsetXZ = new Vector2(2f, 0f); // x -> X axis, y -> Z axis offset
+    [SerializeField] float moveSpeed = 3f;
+    [SerializeField] Transform moveTarget;
+
+    [Header("Room Clear Settings")]
+    public bool isLocked = true; // ë°© í´ë¦¬ì–´ ì „ì—ëŠ” êµ³ê²Œ ë‹«í˜€ìˆìŒ
+
+    Vector3 closedWorldPosition;
+    Vector3 openedWorldPosition;
 
     void Start()
     {
-        // Ã³À½ ´İÈù »óÅÂ ÀúÀå
-        closedRotation = transform.rotation;
+        if (moveTarget == null) moveTarget = transform;
+
+        // Runtime safety: if this object is still static, force it off.
+        if (moveTarget.gameObject.isStatic) moveTarget.gameObject.isStatic = false;
+
+        Renderer[] renderers = moveTarget.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null && renderers[i].gameObject.isStatic)
+                renderers[i].gameObject.isStatic = false;
+        }
+
+        closedWorldPosition = moveTarget.position;
+
+        Vector3 slideOffset = new Vector3(moveOffsetXZ.x, 0f, moveOffsetXZ.y);
+        openedWorldPosition = closedWorldPosition + slideOffset;
+    }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (moveTarget == null) moveTarget = transform;
+
+        if (moveTarget != null)
+        {
+            GameObjectUtility.SetStaticEditorFlags(moveTarget.gameObject, 0);
+            Renderer[] renderers = moveTarget.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null)
+                    GameObjectUtility.SetStaticEditorFlags(renderers[i].gameObject, 0);
+            }
+        }
+    }
+#endif
+
+    // ğŸ’¡ ë°©ì´ í´ë¦¬ì–´ë˜ì—ˆì„ ë•Œ room.csì—ì„œ í˜¸ì¶œí•˜ì—¬ ì ê¸ˆë§Œ í•´ì œ
+    public void UnlockDoor()
+    {
+        isLocked = false;
     }
 
     void Update()
     {
-        if (isOpening)
+        bool playerInRange = false;
+
+        // ğŸšª ë¬¸ì´ ì ê²¨ìˆì§€ ì•Šì„ ë•Œ(í´ë¦¬ì–´ í›„)ì—ë§Œ í”Œë ˆì´ì–´ì˜ ì ‘ê·¼ì„ ê°ì§€í•©ë‹ˆë‹¤.
+        if (!isLocked)
         {
-            // ºÎµå·´°Ô È¸Àü
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * openSpeed);
+            Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, playerMask);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].CompareTag("Player"))
+                {
+                    playerInRange = true;
+                    break;
+                }
+            }
         }
+
+        // í”Œë ˆì´ì–´ê°€ ë²”ìœ„ ë‚´ì— ìˆì„ ë•Œë§Œ openedWorldPositionìœ¼ë¡œ ì´ë™
+        Vector3 targetWorldPosition = playerInRange ? openedWorldPosition : closedWorldPosition;
+        
+        moveTarget.position = Vector3.MoveTowards(
+            moveTarget.position,
+            targetWorldPosition,
+            moveSpeed * Time.deltaTime
+        );
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnDrawGizmosSelected()
     {
-        if (other.CompareTag("Player"))
-        {
-            // ÇÙ½É ·ÎÁ÷: ÇÃ·¹ÀÌ¾îÀÇ x°ª°ú ¹®ÀÇ x°ªÀ» ºñ±³
-            // ÇÃ·¹ÀÌ¾î°¡ ¹®º¸´Ù ¿ŞÂÊ¿¡ ÀÖÀ¸¸é(x°ªÀÌ ÀÛÀ¸¸é) true, ¾Æ´Ï¸é false
-            isLeftOpen = other.transform.position.x < transform.position.x;
-
-            // ¹æÇâ(isLeftOpen)¿¡ µû¶ó ¸ñÇ¥ È¸Àü°ª °è»ê
-            // ÇÃ·¹ÀÌ¾î°¡ ¿ŞÂÊ(isLeftOpen=true)¿¡ ÀÖÀ¸¸é ¿À¸¥ÂÊ(¾ç¼ö °¢µµ)À¸·Î °³¹æ
-            float angle = isLeftOpen ? openAngle : -openAngle;
-            targetRotation = Quaternion.Euler(0, angle, 0) * closedRotation;
-
-            isOpening = true;
-
-            Debug.Log($"ÇÃ·¹ÀÌ¾î À§Ä¡: {other.transform.position.x}, ¹® À§Ä¡: {transform.position.x}");
-            Debug.Log(isLeftOpen ? "ÇÃ·¹ÀÌ¾î°¡ ¿ŞÂÊ¿¡¼­ ÁøÀÔÇÏ¿© ¿À¸¥ÂÊÀ¸·Î ¿±´Ï´Ù." : "ÇÃ·¹ÀÌ¾î°¡ ¿À¸¥ÂÊ¿¡¼­ ÁøÀÔÇÏ¿© ¿ŞÂÊÀ¸·Î ¿±´Ï´Ù.");
-        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, detectRange);
     }
 }

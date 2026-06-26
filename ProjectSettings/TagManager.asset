@@ -12,6 +12,7 @@ TagManager:
   - Enemy
   - FxTemporaire
   - suicide
+  - BuildingEnemy
   layers:
   - Default
   - TransparentFX

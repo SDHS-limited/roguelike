@@ -1,0 +1,15 @@
+{
+    "asset": "c60e394b9e7a7874088a28c4f59749ae",
+    "fileName": "019e80da-826b-768c-8cfe-d5e1119a00b3.wav",
+    "prompt": "strong deep heartbeat thumping sound, rhythmic, slightly muffled, cinematic tension",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

@@ -11,7 +11,6 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] TMP_Text[] nameTexts;
     [SerializeField] TMP_Text[] desTexts;
     [SerializeField] Image[] ImageText;
-   // [SerializeField] Image[] experimentImages;
     [SerializeField] Button[] selectButtons;
     [SerializeField] SeleteCardAnim[] cardAnims;
     [SerializeField] GameObject experiment2; // 실험창
@@ -24,22 +23,29 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] Bullet bullet;
     [SerializeField] Player player;
     [SerializeField] Move move;
-    
+    [SerializeField] Gun gun;
+    [SerializeField] Recoil recoil;
+
     [Header("Effect")]
-    [SerializeField] Effect effect;
+[SerializeField] Effect effect;
     [SerializeField] Fever_Slider fever_Slider;
     [SerializeField] HP_Slider hp;
 
     private List<Experiment> currentOptions = new List<Experiment>();
-    [SerializeField] SeleteCardAnim SeleteCardAnim;
+    
+    [Header("Camera")]
+    [SerializeField] CameraRot cameraRot;
 
+    [HideInInspector] public ExperimentObj activeRoom; // 현재 UI를 열고 있는 방
 
     void Start()
     {
+        if (cameraRot == null) cameraRot = FindFirstObjectByType<CameraRot>();
         ShowThreeRandomExperiments();
-        experiment2.SetActive(false);
+        if (experiment2 != null) experiment2.SetActive(false);
         isSelete = false;
     }
+
     void Awake() {
         Application.targetFrameRate = 60;
     }
@@ -47,29 +53,50 @@ public class ExperimentManager : MonoBehaviour
     void ShowThreeRandomExperiments()
     {
         if (allExperiments.Length < 3) return;
-        isSelete = true;
-        // 1. 중복 없는 인덱스 3개 뽑기
-        List<int> indices = new List<int>();
-        while (indices.Count < 3)
+        
+        int currentSideEffects = SideEffectManager.Instance != null ? SideEffectManager.Instance.SideEffectCount : 0;
+        
+        // ID 201: 기억 혼란 (실험 선택지 1개 숨김)
+        int cardCount = (SideEffectManager.Instance != null && SideEffectManager.Instance.HasEffect(201)) ? 2 : 3;
+
+        List<Experiment> availablePool = new List<Experiment>();
+        foreach (var exp in allExperiments)
         {
-            int randomIndex = Random.Range(0, allExperiments.Length);
+            if (exp.requiredSideEffects <= currentSideEffects)
+            {
+                availablePool.Add(exp);
+            }
+        }
+
+        if (availablePool.Count < 3) availablePool = new List<Experiment>(allExperiments); // Fallback
+
+        // Hide all buttons first
+        foreach (var btn in selectButtons) btn.gameObject.SetActive(false);
+
+        List<int> indices = new List<int>();
+        int safety = 0;
+        while (indices.Count < cardCount && safety < 100)
+        {
+            int randomIndex = Random.Range(0, availablePool.Count);
             if (!indices.Contains(randomIndex)) indices.Add(randomIndex);
+            safety++;
         }
 
         currentOptions.Clear();
 
-        // 2. UI 업데이트 및 버튼 이벤트 할당
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < indices.Count; i++)
         {
             int index = i;
-            Experiment selectedData = allExperiments[indices[i]];
+            Experiment selectedData = availablePool[indices[i]];
             currentOptions.Add(selectedData);
-
+            
+            selectButtons[i].gameObject.SetActive(true);
+                
             nameTexts[i].text = selectedData.name;
-            desTexts[i].text = selectedData.Des;
+            // 설명 제외: 버프, 너프, ID만 표시
+            desTexts[i].text = $"{selectedData.Buff}\n{selectedData.Nerf}\nID: {selectedData.experimentID}";
 
             selectButtons[i].onClick.RemoveAllListeners();
-
             selectButtons[i].onClick.AddListener(() =>
             {
                 OnSelectExperiment(index);
@@ -77,104 +104,113 @@ public class ExperimentManager : MonoBehaviour
         }
     }
 
-    // 능력을 선택했을 때 실행되는 함수
     public void OnSelectExperiment(int index)
     {
+        if (isSelete) return; 
+
         Experiment chosen = currentOptions[index];
         Debug.Log($"{chosen.name} 선택됨!");
 
+        // Add a side effect when selecting an experiment (as requested)
+        if (SideEffectManager.Instance != null) SideEffectManager.Instance.AddRandomSideEffect();
+
+        isSelete = true; 
         StartCoroutine(cardAnims[index].Anim(1f));
         StartCoroutine(ApplyEffect(chosen)); 
-
     }
 
-
-    // 실제 게임 데이터에 능력을 반영하는 곳
     IEnumerator ApplyEffect(Experiment data)
     {
-        yield return new WaitForSeconds(1f); // 애니메이션 기다림
+        //yield return new WaitForSeconds(1.2f); // 애니메이션 대기
+
+        if (activeRoom != null)
+        {
+            activeRoom.MarkAsVisited();
+        }
+
         switch (data.experimentID)
         {
-            case 1:
-                bullet.Damage += 5;
-                fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 0: // 날개 링 파손 테스트
+                if (gun != null) gun.fireRateMultiplier += 0.2f;
+                move.walkSpeed *= 0.85f;
+                move.runSpeed *= 0.85f;
+                if (fever_Slider != null) fever_Slider.AddFever(20f);
                 break;
-            case 2:
-                yield return new WaitForSeconds(0.3f);
-
-                move.walkSpeed -= 2f;
-                player.damage -= 4f;
-                fever_Slider.AddFever(10f);
-                StartCoroutine(effect.Damage()); //이펙트
-                ShowThreeRandomExperiments(); //카드 리셋
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 1: // 천사의 근력 증폭
+                player.attackPowerMultiplier += 0.2f;
+                if (fever_Slider != null) fever_Slider.AddFever(15f);
                 break;
-            case 3:
-                //치명타 높음, 적 데미지 증가
-
-                fever_Slider.AddFever(5f);
-
-                ShowThreeRandomExperiments();
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 2: // 재생 인자
+                player.healOnKillPercentage += 0.06f;
+                move.walkSpeed *= 0.9f;
+                move.runSpeed *= 0.9f;
                 break;
-            case 4:
-                //적 데미지 너프, 총 데미지 너프
-
-                fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 3: // 혈액 가속
+                if (gun != null) gun.fireRateMultiplier += 0.05f;
+                hp.maxHp -= 10f;
+                hp.curHP = Mathf.Min(hp.curHP, hp.maxHp);
                 break;
-            case 5:
-                
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 4: // 신경 강화
+                player.criticalChance += 0.1f;
+                player.feverOnHitMultiplier = 0.5f; // 피격 시 데미지의 50%만큼 게이지 상승
+                if (fever_Slider != null) fever_Slider.AddFever(5f); 
                 break;
-            case 6:
-                // 체력 20 추가, 휴우증 1개 추가
-                hp.curHP += 20;
-                fever_Slider.AddFever(5f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 6: // 반응 속도 증폭
+                move.walkSpeed *= 1.15f;
+                move.runSpeed *= 1.15f;
+                if (recoil != null) recoil.snappiness *= 0.8f;
                 break;
-            case 7:
-                //받은 페널티 제거 및 폭주 게이지 4분의 1 증가
-                fever_Slider.AddFever(25f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 7: // 천사의 분노 유발
+                player.attackPowerMultiplier += 0.3f;
+                StartCoroutine(FeverOverTime(5f, 10f)); 
                 break;
-            case 8:
-                //공격력이 대폭 상승 하지만 폭주 게이지도 대폭 상승한다.
-                bullet.Damage += 20;
-                fever_Slider.AddFever(30f);
-                ShowThreeRandomExperiments();
-
-                isSelete = true;
-                yield return new WaitForSeconds(2f);
-                isSelete = false;
+            case 8: // 생존 본능 자극
+                player.attackPowerMultiplier += 0.1f; 
                 break;
-            // 추가적인 ID에 따른 효과들...
-        }
-    }
+            case 9: // 불법 약물 강제 주입
+                player.criticalChance += 0.15f;
+                if (SideEffectManager.Instance != null) {
+                    SideEffectManager.Instance.AddRandomSideEffect();
+                    SideEffectManager.Instance.AddRandomSideEffect();
+                }
+                break;
+            case 10: // 불사의 혈청
+                player.canReviveOnce = true;
+                break;
+            case 11: // 신성 폭발
+                player.attackPowerMultiplier += 0.15f;
+                AftereffectManager am11 = FindFirstObjectByType<AftereffectManager>();
+                if (am11 != null) am11.hasSacredExplosion = true;
+                break;
+            case 13: // 통제 해제: 즉시 폭주
+                if (fever_Slider != null) fever_Slider.AddFever(100f);
+                AftereffectManager am13 = FindFirstObjectByType<AftereffectManager>();
+                if (am13 != null) am13.extraSideEffectsOnEnd = 3;
+                break;
 }
+
+        if (experiment2 != null) experiment2.SetActive(false);
+        if (cameraRot != null) cameraRot.isUIOpen = false;
+        
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        ShowThreeRandomExperiments(); 
+
+        isSelete = false;
+        activeRoom = null;
+        yield return null;
+        }
+
+        private IEnumerator FeverOverTime(float duration, float totalAmount)
+        {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float step = (totalAmount / duration) * Time.deltaTime;
+            if (fever_Slider != null) fever_Slider.AddFever(step);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        }
+        }

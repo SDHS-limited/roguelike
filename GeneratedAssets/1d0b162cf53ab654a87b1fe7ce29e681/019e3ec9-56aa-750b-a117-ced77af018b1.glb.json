@@ -1,0 +1,23 @@
+{
+    "asset": "1d0b162cf53ab654a87b1fe7ce29e681",
+    "fileName": "019e3ec9-56aa-750b-a117-ced77af018b1.glb",
+    "prompt": "A flying mechanical drone, dark metallic body, subtle demonic horns, circular central gun barrel, sci-fi laboratory enemy, matching the simplified style of the reference image.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "99e4990744df77840bc88929fa760d64",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

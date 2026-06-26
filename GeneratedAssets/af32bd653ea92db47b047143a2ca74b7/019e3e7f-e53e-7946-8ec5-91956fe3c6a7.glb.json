@@ -1,0 +1,23 @@
+{
+    "asset": "af32bd653ea92db47b047143a2ca74b7",
+    "fileName": "019e3e7f-e53e-7946-8ec5-91956fe3c6a7.glb",
+    "prompt": "A metallic medical operating table with multiple mechanical arms and industrial surgical tools, dark sci-fi laboratory prop.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "21fff89d97654ff4da3d334f40e1106a",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}
