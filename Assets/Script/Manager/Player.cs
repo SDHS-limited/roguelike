@@ -212,6 +212,7 @@ public class Player : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (hp != null) hp.TakeDamage(amount);
+        Debug.Log("응애");
         
         Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
         if (fever != null)

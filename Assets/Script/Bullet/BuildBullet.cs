@@ -2,36 +2,40 @@ using UnityEngine;
 
 public class BuildBullet : MonoBehaviour
 {
-    [SerializeField] float speed   = 30f;
-    [SerializeField] float damage  = 20f;
-    [SerializeField] float lifetime = 4f;
+    [SerializeField] private float speed = 15f;      // Fire()의 projectileSpeed와 맞추세요
+    [SerializeField] private float lifetime = 5f;    // 5초 후 자동 삭제
+    [SerializeField] private float damage = 20f;
+    [SerializeField] Player player;
 
-    private Vector3 _dir;
-    private bool _launched;
+    private Vector3 _direction;   // 발사 방향
+    private bool _launched;       // Launch() 호출 여부
 
-    public void Launch(Vector3 direction)
+    public void Launch(Vector3 dir)
     {
-        _dir = direction.normalized;
-        transform.forward = _dir;
+        _direction = dir;
         _launched = true;
-        Destroy(gameObject, lifetime);
 
-        // 디버그: 방향 확인용 선
-        Debug.DrawRay(transform.position, _dir * 5f, Color.red, 3f);
+        // lifetime 후 자동 삭제
+        Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
         if (!_launched) return;
-        transform.position += _dir * speed * Time.deltaTime;
+
+        // 방향으로 매 프레임 이동
+        transform.position += _direction * speed * Time.deltaTime;
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider other)
     {
-        if(collision.gameObject.CompareTag("Player"))
+        // 플레이어 태그에 닿으면 피해 처리
+        if (other.CompareTag("Player"))
         {
+            // 플레이어 체력 스크립트에 맞게 수정하세요
+            player.TakeDamage(8);
+            // other.GetComponent<PlayerHealth>()?.TakeDamage(damage);
             Destroy(gameObject);
-            
         }
     }
 }
