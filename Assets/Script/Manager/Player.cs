@@ -58,6 +58,11 @@ public bool canReviveOnce = false;
     {
         rb = GetComponent<Rigidbody>();
         camOriginPos = cameraHolder.localPosition;
+
+        if (hp == null)
+        {
+            hp = FindFirstObjectByType<HP_Slider>();
+        }
     }
 
     void Update()
@@ -211,7 +216,20 @@ public bool canReviveOnce = false;
     }
     public void TakeDamage(float amount)
     {
-        if (hp != null) hp.TakeDamage(amount);
+        if (hp == null)
+        {
+            hp = FindFirstObjectByType<HP_Slider>();
+        }
+
+        if (hp != null)
+        {
+            hp.TakeDamage(amount);
+        }
+        else
+        {
+            Debug.LogWarning("[Player] HP_Slider 참조가 없어 데미지를 적용할 수 없습니다.");
+        }
+
         Debug.Log("응애");
         
         Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
