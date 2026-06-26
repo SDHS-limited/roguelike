@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d84268709d11078d11005b9844295342
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 165253
+  packageName: CerberosG
+  packageVersion: 1.0
+  assetPath: Assets/CerberosG/Shader/Toon Shading/Sources/Shaders/Toony-Basic.shader
+  uploadId: 358789

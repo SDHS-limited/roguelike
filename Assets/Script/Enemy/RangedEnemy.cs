@@ -100,11 +100,21 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
+    [Header("Juice")]
+    [SerializeField] private GameObject hitEffectPrefab;
+    [SerializeField] private GameObject bloodExplosionPrefab;
+    [SerializeField] private GameObject bloodSplatterPrefab;
+
     public void TakeDamage(float damage)
     {
         hp -= damage;
         if (damageText != null) damageText.SetDamage((int)damage);
         
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position + Vector3.up, Quaternion.identity, transform);
+        }
+
         if (hp <= 0)
         {
             Fever_Slider fever = Object.FindFirstObjectByType<Fever_Slider>();
@@ -114,8 +124,13 @@ public class RangedEnemy : MonoBehaviour
             Effect effects = Object.FindFirstObjectByType<Effect>();
             if (effects != null) effects.TriggerPurification();
             
-            // Note: Blood effects logic can be added here as per previous context
+            SpawnDeathEffects();
             Destroy(gameObject);
         }
     }
-}
+
+    private void SpawnDeathEffects()
+    {
+        DeathEffectUtil.SpawnDeathEffects(transform.position, bloodExplosionPrefab, bloodSplatterPrefab);
+    }
+    }

@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: 01
   m_EditorClassIdentifier: Assembly-CSharp::Experiment
   name: "\uCC9C\uC0AC\uC758 \uADFC\uB825 \uC99D\uD3ED"
-  Des: "\uACF5\uACA9\uB825\uC774 \uC18C\uD3ED \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  Buff: "\uACF5\uACA9\uB825 20% \uC99D\uAC00"
+  Nerf: "\uD3ED\uC8FC \uAC8C\uC774\uC9C0 \uD68D\uB4DD\uB7C9 15%"
   experimentID: 1
+  requiredSideEffects: 0

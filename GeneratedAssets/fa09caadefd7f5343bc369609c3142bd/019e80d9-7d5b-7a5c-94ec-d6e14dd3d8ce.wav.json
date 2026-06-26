@@ -1,0 +1,15 @@
+{
+    "asset": "fa09caadefd7f5343bc369609c3142bd",
+    "fileName": "019e80d9-7d5b-7a5c-94ec-d6e14dd3d8ce.wav",
+    "prompt": "heavy deep breathing, exhausted but intense, cinematic sound effect",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

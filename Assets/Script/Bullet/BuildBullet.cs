@@ -2,40 +2,48 @@ using UnityEngine;
 
 public class BuildBullet : MonoBehaviour
 {
-    [SerializeField] private float speed = 15f;      // Fire()의 projectileSpeed와 맞추세요
-    [SerializeField] private float lifetime = 5f;    // 5초 후 자동 삭제
+    [SerializeField] private float speed = 15f;
+    [SerializeField] private float lifetime = 5f;
     [SerializeField] private float damage = 20f;
-    [SerializeField] Player player;
+    [SerializeField] private GameObject bloodEffectPrefab;
 
-    private Vector3 _direction;   // 발사 방향
-    private bool _launched;       // Launch() 호출 여부
+    private Vector3 _direction;
+    private bool _launched;
 
     public void Launch(Vector3 dir)
     {
         _direction = dir;
         _launched = true;
-
-        // lifetime 후 자동 삭제
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
         if (!_launched) return;
-
-        // 방향으로 매 프레임 이동
         transform.position += _direction * speed * Time.deltaTime;
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnCollisionEnter(Collision collision)
     {
-        // 플레이어 태그에 닿으면 피해 처리
-        if (other.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            // 플레이어 체력 스크립트에 맞게 수정하세요
-            player.TakeDamage(8);
-            // other.GetComponent<PlayerHealth>()?.TakeDamage(damage);
+            // 플레이어 데미지 처리
+            collision.gameObject.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+
+            // 피 파티클 생성
+            if (bloodEffectPrefab != null)
+            {
+                ContactPoint contact = collision.contacts[0];
+                GameObject blood = Instantiate(bloodEffectPrefab, contact.point, Quaternion.LookRotation(contact.normal), collision.transform);
+                Destroy(blood, 2f);
+            }
+
+            Destroy(gameObject);
+        }
+        else if (!collision.gameObject.CompareTag("Enemy")) 
+        {
+            // 벽 등에 부딪혔을 때
             Destroy(gameObject);
         }
     }
-}
+    }

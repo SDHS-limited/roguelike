@@ -30,8 +30,15 @@ public class HP_Slider : MonoBehaviour
     }
     public void TakeDamage(float damage)
     {
+        // Healing (negative damage) is affected by healMultiplier (ID 107)
+        if (damage < 0)
+        {
+            Player p = Object.FindFirstObjectByType<Player>();
+            if (p != null) damage *= p.healMultiplier;
+        }
+        
         curHP -= damage;
-        curHP = Mathf.Clamp(curHP, 0, maxHp); // 0~최대치 사이로 제한
+curHP = Mathf.Clamp(curHP, 0, maxHp); // 0~최대치 사이로 제한
         UpdateHPUI();
 
         if (curHP <= 0)

@@ -149,6 +149,8 @@
         [SerializeField] private Color flashColor = Color.white;
         [SerializeField] private float flashDuration = 0.15f; 
         [SerializeField] private GameObject hitEffectPrefab; 
+        [SerializeField] private GameObject bloodExplosionPrefab;
+        [SerializeField] private GameObject bloodSplatterPrefab;
         private Color[] originalColors;
 
         public void TakeDamage(float damage)
@@ -159,7 +161,8 @@
 
             if (hitEffectPrefab != null)
             {
-                Instantiate(hitEffectPrefab, transform.position + Vector3.up, Quaternion.identity);
+                // Parent to this enemy so the particle follows movement
+                Instantiate(hitEffectPrefab, transform.position + Vector3.up, Quaternion.identity, transform);
             }
 
             Effect effects = FindFirstObjectByType<Effect>();
@@ -174,8 +177,17 @@
                 Fever_Slider fever = FindFirstObjectByType<Fever_Slider>();
                 if (fever != null) fever.AddFever(5f); // 처치 시 피버 5 증가
 
+                Player p = FindFirstObjectByType<Player>();
+                if (p != null) p.OnEnemyKilled();
+
+                SpawnDeathEffects();
                 Destroy(gameObject);
             }
+}
+
+        private void SpawnDeathEffects()
+        {
+            DeathEffectUtil.SpawnDeathEffects(transform.position, bloodExplosionPrefab, bloodSplatterPrefab);
         }
 
         private IEnumerator FlashRoutine()

@@ -15,4 +15,6 @@ MonoBehaviour:
   name: "\uB0A0\uAC1C, \uB9C1 \uD30C\uC190 \uD14C\uC2A4\uD2B8"
   Des: "\uC774\uB3D9 \uBD88\uAC00 \uC2DC\uAC04\uC774 \uBC1C\uC0DD \uD558\uC9C0\uB9CC
     \uC774\uD6C4 \uC774\uB3D9\uC18D\uB3C4\uB294 \uC99D\uAC00\uD55C\uB2E4."
+  Buff: Stability Increase
+  Nerf: Instability Increase
   experimentID: 5

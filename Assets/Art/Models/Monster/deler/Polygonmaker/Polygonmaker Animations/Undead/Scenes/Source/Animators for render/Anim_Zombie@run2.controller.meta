@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 90fdcbd373c046d4cb728909c55a57cb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 155221
+  packageName: Monsters - Zombies
+  packageVersion: 1.4.2
+  assetPath: Assets/Polygonmaker/Polygonmaker Animations/Undead/Scenes/Source/Animators
+    for render/Anim_Zombie@run2.controller
+  uploadId: 725807

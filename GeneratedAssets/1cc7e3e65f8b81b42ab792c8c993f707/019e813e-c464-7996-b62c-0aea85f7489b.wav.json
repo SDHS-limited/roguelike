@@ -1,0 +1,15 @@
+{
+    "asset": "1cc7e3e65f8b81b42ab792c8c993f707",
+    "fileName": "019e813e-c464-7996-b62c-0aea85f7489b.wav",
+    "prompt": "exhausted female breathing, heavy gasps, ethereal and angelic cinematic sound effect, feminine voice, intense but graceful",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 5.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

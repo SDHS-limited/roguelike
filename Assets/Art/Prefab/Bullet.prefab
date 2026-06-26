@@ -158,3 +158,4 @@ MonoBehaviour:
   lifeTime: 1.5
   Damage: 20
   hitEffectPrefab: {fileID: 5582434305018465764, guid: 752ef22520539dd47a78ddc5c286dc28, type: 3}
+  bloodEffectPrefab: {fileID: 6156677834887121033, guid: 974ce8ec5a7cd6c4b849d4094ba01146, type: 3}
