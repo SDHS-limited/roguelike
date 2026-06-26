@@ -52,5 +52,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "roguelike.slnx"
+    "dotnet.defaultSolution": "roguelike.slnx",
+    "dotnet.preferCSharpExtension": true
 }

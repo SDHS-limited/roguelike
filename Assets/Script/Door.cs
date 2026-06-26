@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -65,6 +66,7 @@ public class Door : MonoBehaviour
         {
             if (hits[i].CompareTag("Player"))
             {
+                //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 playerInRange = true;
                 break;
             }

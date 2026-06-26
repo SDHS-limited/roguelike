@@ -5,6 +5,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] float speed = 50f;
     [SerializeField] float lifeTime = 3f;
     [SerializeField] public float Damage = 10;
+    [SerializeField] Player player;
     [SerializeField] GameObject hitEffectPrefab;
     [SerializeField] GameObject bloodEffectPrefab;
 

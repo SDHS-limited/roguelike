@@ -155,7 +155,7 @@ public class ExperimentManager : MonoBehaviour
                 player.feverOnHitMultiplier = 0.5f; // 피격 시 데미지의 50%만큼 게이지 상승
                 if (fever_Slider != null) fever_Slider.AddFever(5f); 
                 break;
-case 6: // 반응 속도 증폭
+            case 6: // 반응 속도 증폭
                 move.walkSpeed *= 1.15f;
                 move.runSpeed *= 1.15f;
                 if (recoil != null) recoil.snappiness *= 0.8f;
